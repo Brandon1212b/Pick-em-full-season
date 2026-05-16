@@ -3,20 +3,31 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: NFL Season-Long Pick'em League API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: users
+    description: User operations
+  - name: matches
+    description: Match operations
+  - name: picks
+    description: Pick operations
+  - name: leaderboard
+    description: Leaderboard and analytics
+  - name: smackboard
+    description: Smack board chat
+  - name: admin
+    description: Admin operations
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,6 +35,373 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  # ── Users ──────────────────────────────────────────────────────────────────
+  /users/login:
+    post:
+      operationId: loginUser
+      tags: [users]
+      summary: Log in or create user by name (no password)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserLogin"
+      responses:
+        "200":
+          description: Existing user logged in
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "201":
+          description: New user created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+
+  /users:
+    get:
+      operationId: listUsers
+      tags: [users]
+      summary: List all users
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/User"
+
+  /users/{userId}:
+    get:
+      operationId: getUser
+      tags: [users]
+      summary: Get a user by ID
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "404":
+          description: Not found
+
+  # ── Matches ────────────────────────────────────────────────────────────────
+  /matches:
+    get:
+      operationId: listMatches
+      tags: [matches]
+      summary: List all matches, optionally filtered by week
+      parameters:
+        - name: week
+          in: query
+          required: false
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Match"
+
+  /matches/{matchId}:
+    get:
+      operationId: getMatch
+      tags: [matches]
+      summary: Get a match by ID
+      parameters:
+        - name: matchId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Match"
+        "404":
+          description: Not found
+
+  # ── Picks ──────────────────────────────────────────────────────────────────
+  /picks/user/{userId}:
+    get:
+      operationId: getUserPicks
+      tags: [picks]
+      summary: Get all picks for a user
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Pick"
+
+  /picks/user/{userId}/week/{week}:
+    get:
+      operationId: getUserPicksForWeek
+      tags: [picks]
+      summary: Get picks for a user in a specific week
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: week
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Pick"
+
+  /picks/save:
+    post:
+      operationId: savePicks
+      tags: [picks]
+      summary: Save/update bulk picks for a user (pre-season only)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BulkPickInput"
+      responses:
+        "200":
+          description: Picks saved
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Pick"
+        "403":
+          description: Season has started, picks are locked
+
+  /picks/autofill:
+    post:
+      operationId: autofillPicks
+      tags: [picks]
+      summary: Autofill remaining picks with favorites or random
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AutofillInput"
+      responses:
+        "200":
+          description: Picks autofilled
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Pick"
+
+  # ── Leaderboard & Analytics ───────────────────────────────────────────────
+  /leaderboard:
+    get:
+      operationId: getLeaderboard
+      tags: [leaderboard]
+      summary: Ranked leaderboard with badges
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/LeaderboardEntry"
+
+  /leaderboard/trends:
+    get:
+      operationId: getLeaderboardTrends
+      tags: [leaderboard]
+      summary: Weekly cumulative points progression for all players
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TrendEntry"
+
+  /leaderboard/weekly-extremes:
+    get:
+      operationId: getWeeklyExtremes
+      tags: [leaderboard]
+      summary: Users with the most and least points in the most recently completed week
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WeeklyExtremes"
+
+  /leaderboard/pick-popularity:
+    get:
+      operationId: getPickPopularity
+      tags: [leaderboard]
+      summary: Percentage of league that picked each team per match
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PickPopularity"
+
+  /leaderboard/season-status:
+    get:
+      operationId: getSeasonStatus
+      tags: [leaderboard]
+      summary: Current season mode (pre-season or in-season) and last completed week
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SeasonStatus"
+
+  # ── Smack Board ───────────────────────────────────────────────────────────
+  /smackboard:
+    get:
+      operationId: listSmackMessages
+      tags: [smackboard]
+      summary: Get smack board messages (newest first)
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SmackMessage"
+    post:
+      operationId: postSmackMessage
+      tags: [smackboard]
+      summary: Post a new smack board message
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SmackMessageInput"
+      responses:
+        "201":
+          description: Posted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SmackMessage"
+
+  # ── Admin ─────────────────────────────────────────────────────────────────
+  /admin/match/{matchId}/result:
+    patch:
+      operationId: setMatchResult
+      tags: [admin]
+      summary: Set the winner of a match (commissioner only)
+      parameters:
+        - name: matchId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MatchResult"
+      responses:
+        "200":
+          description: Match updated, scores recalculated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Match"
+
+  /admin/webhook:
+    post:
+      operationId: sendWebhookNotification
+      tags: [admin]
+      summary: Send a Discord/Slack webhook reminder
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WebhookInput"
+      responses:
+        "200":
+          description: Webhook sent
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WebhookResult"
+
+  /admin/season:
+    patch:
+      operationId: updateSeasonMode
+      tags: [admin]
+      summary: Toggle season mode (pre-season / in-season)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SeasonModeInput"
+      responses:
+        "200":
+          description: Season mode updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SeasonStatus"
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +412,242 @@ components:
       required:
         - status
 
+    User:
+      type: object
+      required: [id, name, createdAt]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        createdAt:
+          type: string
+
+    UserLogin:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+          minLength: 1
+
+    Match:
+      type: object
+      required: [id, week, homeTeam, awayTeam, isCompleted]
+      properties:
+        id:
+          type: integer
+        week:
+          type: integer
+        homeTeam:
+          type: string
+        awayTeam:
+          type: string
+        winner:
+          type: ["string", "null"]
+        isCompleted:
+          type: boolean
+        pointSpread:
+          type: ["string", "null"]
+        injuryWeatherFlags:
+          type: ["string", "null"]
+        gameTime:
+          type: ["string", "null"]
+
+    Pick:
+      type: object
+      required: [id, userId, matchId, selectedTeam, isLock, pointsEarned]
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        matchId:
+          type: integer
+        selectedTeam:
+          type: string
+        isLock:
+          type: boolean
+        pointsEarned:
+          type: integer
+        match:
+          $ref: "#/components/schemas/Match"
+
+    SinglePickInput:
+      type: object
+      required: [matchId, selectedTeam, isLock]
+      properties:
+        matchId:
+          type: integer
+        selectedTeam:
+          type: string
+        isLock:
+          type: boolean
+
+    BulkPickInput:
+      type: object
+      required: [userId, picks]
+      properties:
+        userId:
+          type: integer
+        picks:
+          type: array
+          items:
+            $ref: "#/components/schemas/SinglePickInput"
+
+    AutofillInput:
+      type: object
+      required: [userId, mode]
+      properties:
+        userId:
+          type: integer
+        mode:
+          type: string
+          enum: [favorites, random]
+
+    LeaderboardEntry:
+      type: object
+      required: [userId, name, totalPoints, rank, correctPicks, totalPicks, badges]
+      properties:
+        userId:
+          type: integer
+        name:
+          type: string
+        totalPoints:
+          type: integer
+        rank:
+          type: integer
+        correctPicks:
+          type: integer
+        totalPicks:
+          type: integer
+        badges:
+          type: array
+          items:
+            type: string
+
+    TrendEntry:
+      type: object
+      required: [userId, name, weeklyPoints]
+      properties:
+        userId:
+          type: integer
+        name:
+          type: string
+        weeklyPoints:
+          type: array
+          items:
+            type: integer
+
+    WeeklyExtremes:
+      type: object
+      required: [week, topUsers, bottomUsers]
+      properties:
+        week:
+          type: integer
+        topUsers:
+          type: array
+          items:
+            $ref: "#/components/schemas/WeeklyScore"
+        bottomUsers:
+          type: array
+          items:
+            $ref: "#/components/schemas/WeeklyScore"
+
+    WeeklyScore:
+      type: object
+      required: [userId, name, points]
+      properties:
+        userId:
+          type: integer
+        name:
+          type: string
+        points:
+          type: integer
+
+    PickPopularity:
+      type: object
+      required: [matchId, homeTeam, awayTeam, homePickPct, awayPickPct, week]
+      properties:
+        matchId:
+          type: integer
+        week:
+          type: integer
+        homeTeam:
+          type: string
+        awayTeam:
+          type: string
+        homePickPct:
+          type: number
+        awayPickPct:
+          type: number
+
+    SeasonStatus:
+      type: object
+      required: [mode, lastCompletedWeek, seasonLocked]
+      properties:
+        mode:
+          type: string
+          enum: [pre-season, in-season]
+        lastCompletedWeek:
+          type: integer
+        seasonLocked:
+          type: boolean
+
+    SmackMessage:
+      type: object
+      required: [id, name, message, timestamp]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        message:
+          type: string
+        timestamp:
+          type: string
+
+    SmackMessageInput:
+      type: object
+      required: [name, message]
+      properties:
+        name:
+          type: string
+          minLength: 1
+        message:
+          type: string
+          minLength: 1
+          maxLength: 280
+
+    MatchResult:
+      type: object
+      required: [winner]
+      properties:
+        winner:
+          type: string
+
+    WebhookInput:
+      type: object
+      required: [webhookUrl, message]
+      properties:
+        webhookUrl:
+          type: string
+        message:
+          type: string
+
+    WebhookResult:
+      type: object
+      required: [success]
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+
+    SeasonModeInput:
+      type: object
+      required: [mode]
+      properties:
+        mode:
+          type: string
+          enum: [pre-season, in-season]

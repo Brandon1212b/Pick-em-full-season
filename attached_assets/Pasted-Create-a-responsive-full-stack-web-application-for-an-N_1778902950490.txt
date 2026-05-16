@@ -1,0 +1,49 @@
+Create a responsive, full-stack web application for an NFL Season-Long Pick'em League for the 2026-2027 season using Python/Flask (or Node.js/Express). 
+
+CRITICAL RULE FOR THE LEAGUE: 
+Unlike weekly pick'em leagues, users must fill out and submit their predictions for EVERY SINGLE MATCHUP across all 18 weeks of the entire season UPFRONT, before the regular season begins. Once the Week 1 season kickoff occurs, all picks across all 18 weeks are completely locked and cannot be edited. Users can freely modify any week's picks as much as they want during the pre-season until this hard deadline.
+
+UI/UX Design Direction:
+The application must feature a modern, minimalist UI design heavily inspired by iOS and Apple Health style aesthetics. Use clean thin lines, generous whitespace, soft neutral/pastel backgrounds, subtle grid lines, and distinct rounded corners (border-radius: 12px to 16px) on all cards, buttons, and interactive dashboard modules. 
+
+Core Requirements & Features:
+
+1. Database Schema:
+   - Users: Id, Name (Unique, alphanumeric/spaces allowed)
+   - Matches: Id, Week (1-18), HomeTeam, AwayTeam, Winner (Null until game is played), IsCompleted (Boolean), PointSpread (String, e.g., "-3.5"), InjuryWeatherFlags (String/Array for simple icons)
+   - Picks: Id, UserId, MatchId, SelectedTeam, IsLock (Boolean), PointsEarned (Integer)
+   - SmackBoard: Id, Name, Message, Timestamp
+
+2. Frictionless No-Password Authentication:
+   - Users log in solely by entering their Name. 
+   - If the name doesn't exist, prompt them to create a new profile. If it exists, immediately load their personal 18-week schedule sheet. No passwords, emails, or sign-up hurdles.
+
+3. Interactive Pre-Season Selection Dashboard (The "Grid"):
+   - Display a highly scannable, cleanly grouped interface showing Week 1 through Week 18.
+   - Matchups must display clearly as "HOME vs AWAY". Include tiny visual toggle indicators for Vegas Point Spreads and Weather/Injury status (e.g., 🌧️, 🏥) next to teams to help users make selections.
+   - User selection is intuitive: clicking a team's card/button highlights them as the pick.
+   - "Lock of the Week" Feature: For each of the 18 weeks, allow the user to select exactly ONE matchup as their "Lock" (visualized with a literal lock icon). 
+   - Autofill / Panic Button: Add a button at the top allowing users to "Autofill Remaining with Favorites" or "Randomize Unpicked Games" to speed up full-season submission.
+   - Dynamic saving via a clean floating "Save All Selections" button.
+
+4. Live Season Dashboard & In-Game Scoring (In-Season Mode):
+   - Once the season starts, lock the inputs. 
+   - Provide a "Live Sunday Tracker" view. While games are active, visually highlight team cards based on real-time status (e.g., if a user's picked team is currently winning in the 3rd quarter, highlight it soft green live).
+   - Once a match is marked complete: visually mark correct picks with a subtle green checkmark and incorrect ones with a soft red cross. 
+   - Scoring Logic: A standard correct pick = 1 point. A correct "Lock of the Week" pick = 2 points. An incorrect Lock = 0 points.
+
+5. Analytics, Fun Stats & Interactive Leaderboard:
+   - Build a gorgeous analytics dashboard using Chart.js containing:
+     * Current Standings: A ranked leaderboard sorted by Cumulative Points.
+     * Trophies/Badges: Automatically attach visual badges to names on the leaderboard for the week (e.g., "Perfect Week" for max points, "The Cellar" for the lowest weekly score, "Against the Grain" for picking an upset chosen by <15% of the league).
+     * Weekly Extremes: Highlight the specific user(s) who got the Most Points and Least Points in the most recently completed week.
+     * Cumulative Trends: A line chart showing the "Cumulative Points Progression" week-by-week for all players so users can see rank shifts.
+     * Pick Popularity: A breakdown showing what percentage of the league voted for each team in upcoming matchups.
+
+6. Social Engagement & Admin Control:
+   - Smack Board: A global, simple chat widget embedded directly on the main dashboard where users can post short text trash-talk messages.
+   - Discord/Slack Webhook: An admin field to paste a webhook URL to blast a notification reminder to the league group chat with one click.
+   - Commissioner Admin Panel: A secure or hidden toggle route allowing you to quickly input the real-world winner of each match week-by-week, which instantly updates all user scores, triggers badge allocations, and updates the Chart.js graphs.
+
+Seed Data:
+- Seed the database with the complete 18-week NFL 2026-2027 schedule using standard official team abbreviations (e.g., BAL, PHI, KC, SF).

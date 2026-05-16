@@ -1,10 +1,11 @@
-# [Project name]
+# NFL Pick'em League
 
-_Replace the heading above with the project's name, and this line with one sentence describing what this app does for users._
+A full-stack NFL Season-Long Pick'em League app where users submit predictions for all 18 weeks of the 2026-2027 season upfront, then track results live during the season.
 
 ## Run & Operate
 
-- `pnpm --filter @workspace/api-server run dev` — run the API server (port 5000)
+- `pnpm --filter @workspace/api-server run dev` — run the API server (port 8080)
+- `pnpm --filter @workspace/nfl-pickem run dev` — run the frontend (port 20657)
 - `pnpm run typecheck` — full typecheck across all packages
 - `pnpm run build` — typecheck + build all packages
 - `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from the OpenAPI spec
@@ -14,6 +15,7 @@ _Replace the heading above with the project's name, and this line with one sente
 ## Stack
 
 - pnpm workspaces, Node.js 24, TypeScript 5.9
+- Frontend: React + Vite + TailwindCSS + shadcn/ui + Recharts
 - API: Express 5
 - DB: PostgreSQL + Drizzle ORM
 - Validation: Zod (`zod/v4`), `drizzle-zod`
@@ -22,23 +24,39 @@ _Replace the heading above with the project's name, and this line with one sente
 
 ## Where things live
 
-_Populate as you build — short repo map plus pointers to the source-of-truth file for DB schema, API contracts, theme files, etc._
+- `lib/api-spec/openapi.yaml` — single source of truth for API contract
+- `lib/db/src/schema/` — Drizzle table definitions (users, matches, picks, smackboard, season_config)
+- `artifacts/api-server/src/routes/` — Express route handlers
+- `artifacts/nfl-pickem/src/pages/` — React pages (login, picks, dashboard, leaderboard, admin)
+- `artifacts/nfl-pickem/src/lib/auth.tsx` — Auth context (localStorage-based, name-only login)
 
 ## Architecture decisions
 
-_Populate as you build — non-obvious choices a reader couldn't infer from the code (3-5 bullets)._
+- Name-only authentication: users log in by name only, stored in localStorage. No passwords or sessions.
+- Pre-season lock: all 288 games across 18 weeks seeded upfront. Season mode toggle in admin locks all picks.
+- Lock of the Week: one special pick per week worth 2 points if correct, 0 if wrong. One lock per week enforced at API level.
+- Scoring: correct pick = 1 point, correct Lock = 2 points, wrong Lock = 0 points. Recalculated server-side when admin sets winners.
+- Admin at `/admin` (hidden route) — commissioner sets match results and toggles season mode.
 
 ## Product
 
-_Describe the high-level user-facing capabilities of this app once they exist._
+- **Login**: Enter name to join or return. No password needed.
+- **The Grid** (`/picks`): Full 18-week schedule, pick winners, set locks, autofill, save all picks before season starts.
+- **Dashboard** (`/dashboard`): Current week view with pick result status, plus Smack Board chat.
+- **Leaderboard** (`/leaderboard`): Ranked standings with badges, cumulative trends chart, pick popularity breakdown.
+- **Admin** (`/admin`): Set match winners, toggle season mode, send Discord/Slack webhook notifications.
 
 ## User preferences
 
-_Populate as you build — explicit user instructions worth remembering across sessions._
+- iOS / Apple Health aesthetic: soft gray backgrounds, iOS blue (#007AFF), white cards, 16px radius, system fonts
+- No passwords, emails, or sign-up hurdles
 
 ## Gotchas
 
-_Populate as you build — sharp edges, "always run X before Y" rules._
+- After schema changes: run `pnpm --filter @workspace/db run push` then `pnpm run typecheck:libs`
+- After OpenAPI changes: run `pnpm --filter @workspace/api-spec run codegen`
+- Admin panel is at `/admin` — not linked from nav intentionally
+- Smack Board polls every 15 seconds on the dashboard page
 
 ## Pointers
 
