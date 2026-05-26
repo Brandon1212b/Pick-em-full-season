@@ -11,6 +11,7 @@ import Picks from "@/pages/picks";
 import Dashboard from "@/pages/dashboard";
 import Leaderboard from "@/pages/leaderboard";
 import Admin from "@/pages/admin";
+import Help from "@/pages/help";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -30,6 +31,7 @@ function Router() {
         <Route path="/dashboard" component={Dashboard} />
         <Route path="/leaderboard" component={Leaderboard} />
         <Route path="/admin" component={Admin} />
+        <Route path="/help" component={Help} />
         <Route component={NotFound} />
       </Switch>
     </AppLayout>

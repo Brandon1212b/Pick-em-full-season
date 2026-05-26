@@ -57,6 +57,7 @@ export default function Picks() {
   const [localPicks, setLocalPicks] = useState<Record<number, { selectedTeam: string; isLock: boolean }>>({});
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [pendingAutofill, setPendingAutofill] = useState<AutofillMode | null>(null);
+  const [showResetConfirm, setShowResetConfirm] = useState(false);
 
   useEffect(() => {
     if (picks) {
@@ -199,7 +200,7 @@ export default function Picks() {
                 variant="ghost"
                 size="sm"
                 className="text-destructive hover:text-destructive hover:bg-destructive/10 rounded-full h-8 px-3 text-xs"
-                onClick={handleReset}
+                onClick={() => setShowResetConfirm(true)}
                 disabled={totalPicks === 0}
               >
                 <RotateCcw className="w-3 h-3 mr-1" />
@@ -250,6 +251,15 @@ export default function Picks() {
               </AccordionTrigger>
               <AccordionContent className="px-4 pb-4">
                 <div className="space-y-2 pt-2">
+                  {/* Home / Away column labels */}
+                  <div className="flex items-center gap-2 pb-0.5">
+                    <div className="hidden sm:block w-20 shrink-0" />
+                    <div className="flex-1 grid grid-cols-2 gap-2">
+                      <span className="text-center text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Away</span>
+                      <span className="text-center text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Home</span>
+                    </div>
+                    <div className="w-8 shrink-0" />
+                  </div>
                   {weekMatches.map((match) => {
                     const pick = localPicks[match.id];
                     const awaySpread = getTeamSpread(match.pointSpread, "away");
@@ -356,6 +366,27 @@ export default function Picks() {
           )}
         </div>
       )}
+
+      {/* Reset confirmation dialog */}
+      <AlertDialog open={showResetConfirm} onOpenChange={setShowResetConfirm}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Reset all picks?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will clear all {totalPicks} picks you've made. You'll need to re-pick all 288 games. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={() => { handleReset(); setShowResetConfirm(false); }}
+            >
+              Yes, reset all picks
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {/* Autofill confirmation dialog */}
       <AlertDialog open={!!pendingAutofill} onOpenChange={(open) => !open && setPendingAutofill(null)}>

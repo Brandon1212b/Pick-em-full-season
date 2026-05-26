@@ -17,4 +17,6 @@ export interface PickPopularity {
   awayPickCount: number;
   homePickerNames: string[];
   awayPickerNames: string[];
+  /** @nullable */
+  gameTime?: string | null;
 }

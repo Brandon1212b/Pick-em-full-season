@@ -9,27 +9,60 @@ router.get("/leaderboard", async (_req, res) => {
   const picks = await db.select().from(picksTable);
   const matches = await db.select().from(matchesTable);
   const completedMatches = matches.filter((m) => m.isCompleted);
+  const completedMatchIds = new Set(completedMatches.map((m) => m.id));
 
   const lastWeek = completedMatches.length > 0 ? Math.max(...completedMatches.map((m) => m.week)) : 0;
   const lastWeekMatches = completedMatches.filter((m) => m.week === lastWeek);
   const lastWeekMatchIds = new Set(lastWeekMatches.map((m) => m.id));
 
+  // Badge: against the grain — pick pick counts
   const matchPickCounts: Record<number, Record<string, number>> = {};
   for (const p of picks) {
     if (!matchPickCounts[p.matchId]) matchPickCounts[p.matchId] = {};
     matchPickCounts[p.matchId][p.selectedTeam] = (matchPickCounts[p.matchId][p.selectedTeam] ?? 0) + 1;
   }
 
+  // Compute per-week high score counts
+  const completedWeeks = [...new Set(completedMatches.map((m) => m.week))].sort((a, b) => a - b);
+  const weekHighScoreCounts: Record<number, number> = {};
+  const weekLowScoreCounts: Record<number, number> = {};
+
+  for (const week of completedWeeks) {
+    const weekMatchIds = new Set(completedMatches.filter((m) => m.week === week).map((m) => m.id));
+    const weekScores = users.map((u) => {
+      const weekPicks = picks.filter((p) => p.userId === u.id && weekMatchIds.has(p.matchId));
+      const points = weekPicks.reduce((s, p) => s + p.pointsEarned, 0);
+      return { userId: u.id, points };
+    });
+    if (weekScores.length === 0) continue;
+    const maxPts = Math.max(...weekScores.map((s) => s.points));
+    const minPts = Math.min(...weekScores.map((s) => s.points));
+    if (maxPts > 0) {
+      for (const s of weekScores) {
+        if (s.points === maxPts) {
+          weekHighScoreCounts[s.userId] = (weekHighScoreCounts[s.userId] ?? 0) + 1;
+        }
+        if (s.points === minPts) {
+          weekLowScoreCounts[s.userId] = (weekLowScoreCounts[s.userId] ?? 0) + 1;
+        }
+      }
+    }
+  }
+
   const entries = users.map((u) => {
     const userPicks = picks.filter((p) => p.userId === u.id);
+    const resolvedPicks = userPicks.filter((p) => completedMatchIds.has(p.matchId));
     const totalPoints = userPicks.reduce((s, p) => s + p.pointsEarned, 0);
-    const correctPicks = userPicks.filter((p) => {
+
+    const correctPicks = resolvedPicks.filter((p) => {
       const m = completedMatches.find((m) => m.id === p.matchId);
       return m && p.selectedTeam === m.winner;
     }).length;
+    const wrongPicks = resolvedPicks.length - correctPicks;
 
     const badges: string[] = [];
 
+    // Perfect Week
     const lwPicks = userPicks.filter((p) => lastWeekMatchIds.has(p.matchId));
     const lwCorrect = lwPicks.filter((p) => {
       const m = lastWeekMatches.find((m) => m.id === p.matchId);
@@ -39,7 +72,8 @@ router.get("/leaderboard", async (_req, res) => {
       badges.push("Perfect Week");
     }
 
-    const agPick = userPicks.some((p) => {
+    // Against the Grain
+    const agPick = resolvedPicks.some((p) => {
       const m = completedMatches.find((m) => m.id === p.matchId);
       if (!m || p.selectedTeam !== m.winner) return false;
       const counts = matchPickCounts[p.matchId] ?? {};
@@ -49,7 +83,18 @@ router.get("/leaderboard", async (_req, res) => {
     });
     if (agPick) badges.push("Against the Grain");
 
-    return { userId: u.id, name: u.name, totalPoints, correctPicks, totalPicks: userPicks.length, badges };
+    return {
+      userId: u.id,
+      name: u.name,
+      avatar: u.avatar ?? null,
+      totalPoints,
+      correctPicks,
+      wrongPicks,
+      totalPicks: userPicks.length,
+      weekHighScoreCount: weekHighScoreCounts[u.id] ?? 0,
+      weekLowScoreCount: weekLowScoreCounts[u.id] ?? 0,
+      badges,
+    };
   });
 
   entries.sort((a, b) => b.totalPoints - a.totalPoints);
@@ -87,7 +132,7 @@ router.get("/leaderboard/trends", async (_req, res) => {
       cumulative += weekPoints;
       weeklyPoints.push(cumulative);
     }
-    return { userId: u.id, name: u.name, weeklyPoints };
+    return { userId: u.id, name: u.name, avatar: u.avatar ?? null, weeklyPoints };
   });
 
   res.json(trends);
@@ -127,17 +172,14 @@ router.get("/leaderboard/weekly-extremes", async (_req, res) => {
   });
 });
 
-// Pick popularity — active week only, returns counts per team
 router.get("/leaderboard/pick-popularity", async (_req, res) => {
   const picks = await db.select().from(picksTable);
   const matches = await db.select().from(matchesTable);
   const users = await db.select().from(usersTable);
   const [cfg] = await db.select().from(seasonConfigTable).limit(1);
 
-  // Show the current/next relevant week: lastCompletedWeek+1 or week 1 pre-season
   const lastCompleted = cfg?.lastCompletedWeek ?? 0;
   const activeWeek = lastCompleted + 1 <= 18 ? lastCompleted + 1 : 18;
-
   const weekMatches = matches.filter((m) => m.week === activeWeek);
 
   const result = weekMatches.map((m) => {
@@ -146,7 +188,6 @@ router.get("/leaderboard/pick-popularity", async (_req, res) => {
     const awayPicks = matchPicks.filter((p) => p.selectedTeam === m.awayTeam).length;
     const total = matchPicks.length || 1;
 
-    // Collect picker names for each team
     const homePickerIds = matchPicks.filter((p) => p.selectedTeam === m.homeTeam).map((p) => p.userId);
     const awayPickerIds = matchPicks.filter((p) => p.selectedTeam === m.awayTeam).map((p) => p.userId);
     const homePickerNames = users.filter((u) => homePickerIds.includes(u.id)).map((u) => u.name);
@@ -163,6 +204,7 @@ router.get("/leaderboard/pick-popularity", async (_req, res) => {
       awayPickPct: Math.round((awayPicks / total) * 100),
       homePickerNames,
       awayPickerNames,
+      gameTime: m.gameTime ?? null,
     };
   });
 

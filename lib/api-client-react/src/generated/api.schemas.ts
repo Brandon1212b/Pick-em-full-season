@@ -86,16 +86,23 @@ export interface AutofillInput {
 export interface LeaderboardEntry {
   userId: number;
   name: string;
+  /** @nullable */
+  avatar?: string | null;
   totalPoints: number;
   rank: number;
   correctPicks: number;
+  wrongPicks: number;
   totalPicks: number;
+  weekHighScoreCount: number;
+  weekLowScoreCount: number;
   badges: string[];
 }
 
 export interface TrendEntry {
   userId: number;
   name: string;
+  /** @nullable */
+  avatar?: string | null;
   weeklyPoints: number[];
 }
 
@@ -122,6 +129,8 @@ export interface PickPopularity {
   awayPickCount: number;
   homePickerNames: string[];
   awayPickerNames: string[];
+  /** @nullable */
+  gameTime?: string | null;
 }
 
 export type SeasonStatusMode = typeof SeasonStatusMode[keyof typeof SeasonStatusMode];

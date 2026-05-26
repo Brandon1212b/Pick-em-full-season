@@ -9,9 +9,14 @@
 export interface LeaderboardEntry {
   userId: number;
   name: string;
+  /** @nullable */
+  avatar?: string | null;
   totalPoints: number;
   rank: number;
   correctPicks: number;
+  wrongPicks: number;
   totalPicks: number;
+  weekHighScoreCount: number;
+  weekLowScoreCount: number;
   badges: string[];
 }

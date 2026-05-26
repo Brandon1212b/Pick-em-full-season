@@ -3,6 +3,12 @@ import { db, usersTable } from "@workspace/db";
 import { eq } from "drizzle-orm";
 import { LoginUserBody } from "@workspace/api-zod";
 
+const PROFILE_COLORS = [
+  "#007AFF", "#FF6B35", "#34C759", "#AF52DE",
+  "#FF2D55", "#5AC8FA", "#FFCC00", "#FF9500",
+  "#00C7BE", "#30D158",
+];
+
 const router = Router();
 
 function serializeUser(u: typeof usersTable.$inferSelect) {
@@ -13,12 +19,20 @@ router.post("/users/login", async (req, res) => {
   const parsed = LoginUserBody.safeParse(req.body);
   if (!parsed.success) { res.status(400).json({ error: "Invalid request body" }); return; }
   const { name } = parsed.data;
+
   const existing = await db.select().from(usersTable).where(eq(usersTable.name, name)).limit(1);
   if (existing.length > 0) {
     res.status(200).json(serializeUser(existing[0]));
     return;
   }
-  const [created] = await db.insert(usersTable).values({ name }).returning();
+
+  // Assign a color not already taken
+  const allUsers = await db.select({ avatar: usersTable.avatar }).from(usersTable);
+  const takenColors = new Set(allUsers.map((u) => u.avatar).filter(Boolean));
+  const available = PROFILE_COLORS.filter((c) => !takenColors.has(c));
+  const color = available.length > 0 ? available[0] : PROFILE_COLORS[allUsers.length % PROFILE_COLORS.length];
+
+  const [created] = await db.insert(usersTable).values({ name, avatar: color }).returning();
   res.status(201).json(serializeUser(created));
 });
 
@@ -49,7 +63,7 @@ router.patch("/users/:userId", async (req, res) => {
     updates.name = body.name;
   }
   if (body.avatar !== undefined) {
-    if (body.avatar !== null && (typeof body.avatar !== "string" || body.avatar.length > 10)) {
+    if (body.avatar !== null && (typeof body.avatar !== "string" || body.avatar.length > 16)) {
       res.status(400).json({ error: "avatar must be null or a short string" }); return;
     }
     updates.avatar = body.avatar as string | undefined;

@@ -9,5 +9,7 @@
 export interface TrendEntry {
   userId: number;
   name: string;
+  /** @nullable */
+  avatar?: string | null;
   weeklyPoints: number[];
 }

@@ -1,72 +1,67 @@
 import React from "react";
-import { 
-  useGetLeaderboard, 
-  useGetLeaderboardTrends, 
-  useGetWeeklyExtremes, 
-  useGetPickPopularity,
+import {
+  useGetLeaderboard,
+  useGetLeaderboardTrends,
+  useGetWeeklyExtremes,
   useGetSeasonStatus,
 } from "@workspace/api-client-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
-import { TeamLogo } from "@/lib/team-logos";
 
-function PickerAvatars({ names, limit = 5 }: { names: string[]; limit?: number }) {
-  const shown = names.slice(0, limit);
-  const extra = names.length - limit;
-  return (
-    <div className="flex items-center">
-      <div className="flex -space-x-1.5">
-        {shown.map((name, i) => (
-          <div
-            key={i}
-            title={name}
-            className="w-6 h-6 rounded-full bg-primary/20 border-2 border-card flex items-center justify-center text-[9px] font-bold text-primary ring-0 select-none shrink-0"
-          >
-            {name[0]?.toUpperCase()}
-          </div>
-        ))}
-        {extra > 0 && (
-          <div className="w-6 h-6 rounded-full bg-muted border-2 border-card flex items-center justify-center text-[9px] font-medium text-muted-foreground shrink-0">
-            +{extra}
-          </div>
-        )}
-      </div>
-      {names.length > 0 && (
-        <span className="ml-1.5 text-xs text-muted-foreground font-medium">{names.length}</span>
-      )}
-    </div>
-  );
+const FALLBACK_COLORS = [
+  "#007AFF", "#FF6B35", "#34C759", "#AF52DE",
+  "#FF2D55", "#5AC8FA", "#FFCC00", "#FF9500",
+];
+
+const BADGE_KEY = [
+  { emoji: "👑", name: "League Leader", desc: "Currently #1 in points" },
+  { emoji: "🏆", name: "Perfect Week", desc: "Picked every game right in a week" },
+  { emoji: "⚡", name: "Against the Grain", desc: "Won a pick that <15% of the league made" },
+  { emoji: "🪣", name: "The Cellar", desc: "Currently lowest points in the league" },
+  { emoji: "🔥", name: "Week High Score", desc: "One per week you had the top score" },
+];
+
+function badgeEmoji(b: string): string {
+  if (b === "Perfect Week") return "🏆";
+  if (b === "The Cellar") return "🪣";
+  if (b === "Against the Grain") return "⚡";
+  if (b === "League Leader") return "👑";
+  return "";
 }
 
 export default function Leaderboard() {
   const { data: leaderboard, isLoading: loadingBoard } = useGetLeaderboard();
   const { data: trends, isLoading: loadingTrends } = useGetLeaderboardTrends();
   const { data: extremes, isLoading: loadingExtremes } = useGetWeeklyExtremes();
-  const { data: popularity, isLoading: loadingPopularity } = useGetPickPopularity();
   const { data: status } = useGetSeasonStatus();
 
-  if (loadingBoard || loadingTrends || loadingExtremes || loadingPopularity) {
-    return <div className="space-y-4"><Skeleton className="h-64 w-full" /><Skeleton className="h-64 w-full" /></div>;
+  if (loadingBoard || loadingTrends || loadingExtremes) {
+    return (
+      <div className="space-y-4">
+        <Skeleton className="h-64 w-full" />
+        <Skeleton className="h-64 w-full" />
+      </div>
+    );
   }
 
-  const chartData = [];
+  // Build chart data
+  const chartData: Record<string, string | number>[] = [];
   if (trends && trends.length > 0) {
     const numWeeks = trends[0].weeklyPoints.length;
     for (let w = 0; w < numWeeks; w++) {
-      const dataPoint: any = { week: `W${w + 1}` };
-      trends.forEach(user => { dataPoint[user.name] = user.weeklyPoints[w]; });
+      const dataPoint: Record<string, string | number> = { week: `W${w + 1}` };
+      trends.forEach((u) => { dataPoint[u.name] = u.weeklyPoints[w]; });
       chartData.push(dataPoint);
     }
   }
 
-  const chartColors = [
-    "hsl(var(--chart-1))", "hsl(var(--chart-2))", "hsl(var(--chart-3))",
-    "hsl(var(--chart-4))", "hsl(var(--chart-5))",
-  ];
-
-  const activeWeek = (status?.lastCompletedWeek ?? 0) + 1;
+  // Get user color from leaderboard (avatar) or fallback
+  const getUserColor = (userId: number, idx: number): string => {
+    const entry = leaderboard?.find((e) => e.userId === userId);
+    return entry?.avatar ?? FALLBACK_COLORS[idx % FALLBACK_COLORS.length];
+  };
 
   return (
     <div className="space-y-6">
@@ -75,6 +70,7 @@ export default function Leaderboard() {
         <p className="text-muted-foreground">League performance and analytics</p>
       </div>
 
+      {/* League Standings */}
       <Card>
         <CardHeader>
           <CardTitle>League Standings</CardTitle>
@@ -96,21 +92,24 @@ export default function Leaderboard() {
                   <TableCell>
                     <div className="flex items-center gap-1.5 flex-wrap">
                       <span className="font-semibold">{entry.name}</span>
+                      {entry.weekHighScoreCount > 0 && (
+                        <span title={`Week high score ${entry.weekHighScoreCount}x`} className="text-base leading-none">
+                          {"🔥".repeat(Math.min(entry.weekHighScoreCount, 8))}
+                        </span>
+                      )}
                       <span className="inline-flex gap-0.5">
-                        {entry.badges.map((b, i) => (
-                          <span key={i} title={b} className="text-base">
-                            {b === "Perfect Week" ? "🏆" :
-                             b === "The Cellar" ? "🪣" :
-                             b === "Against the Grain" ? "⚡" :
-                             b === "League Leader" ? "👑" : ""}
-                          </span>
-                        ))}
+                        {entry.badges.map((b, i) => {
+                          const emoji = badgeEmoji(b);
+                          return emoji ? (
+                            <span key={i} title={b} className="text-base">{emoji}</span>
+                          ) : null;
+                        })}
                       </span>
                     </div>
                   </TableCell>
                   <TableCell className="text-right font-bold text-lg">{entry.totalPoints}</TableCell>
                   <TableCell className="text-right text-muted-foreground text-sm">
-                    {entry.correctPicks}-{entry.totalPicks - entry.correctPicks}
+                    {entry.correctPicks}-{entry.wrongPicks}
                   </TableCell>
                 </TableRow>
               ))}
@@ -119,6 +118,27 @@ export default function Leaderboard() {
         </CardContent>
       </Card>
 
+      {/* Badge Key */}
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base">Badge Key</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            {BADGE_KEY.map(({ emoji, name, desc }) => (
+              <div key={name} className="flex items-center gap-2.5 p-2 rounded-lg bg-secondary/30">
+                <span className="text-xl shrink-0">{emoji}</span>
+                <div>
+                  <p className="text-xs font-semibold text-foreground">{name}</p>
+                  <p className="text-[10px] text-muted-foreground">{desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Weekly extremes */}
       {(extremes?.topUsers?.length || 0) + (extremes?.bottomUsers?.length || 0) > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {extremes?.topUsers && extremes.topUsers.length > 0 && (
@@ -127,7 +147,7 @@ export default function Leaderboard() {
                 <div className="text-3xl mb-1">🔥</div>
                 <h3 className="font-bold text-lg mb-0.5">Week {extremes.week} High Score</h3>
                 <div className="font-semibold text-primary">
-                  {extremes.topUsers.map(u => `${u.name} (${u.points} pts)`).join(', ')}
+                  {extremes.topUsers.map((u) => `${u.name} (${u.points} pts)`).join(", ")}
                 </div>
               </CardContent>
             </Card>
@@ -135,10 +155,10 @@ export default function Leaderboard() {
           {extremes?.bottomUsers && extremes.bottomUsers.length > 0 && (
             <Card className="bg-destructive/5 border-destructive/20">
               <CardContent className="p-5 text-center">
-                <div className="text-3xl mb-1">🥶</div>
+                <div className="text-3xl mb-1">💩</div>
                 <h3 className="font-bold text-lg mb-0.5">Week {extremes.week} Low Score</h3>
                 <div className="font-semibold text-destructive">
-                  {extremes.bottomUsers.map(u => `${u.name} (${u.points} pts)`).join(', ')}
+                  {extremes.bottomUsers.map((u) => `${u.name} (${u.points} pts)`).join(", ")}
                 </div>
               </CardContent>
             </Card>
@@ -146,6 +166,7 @@ export default function Leaderboard() {
         </div>
       )}
 
+      {/* Season Trajectory chart */}
       {chartData.length > 0 && (
         <Card>
           <CardHeader>
@@ -157,12 +178,23 @@ export default function Leaderboard() {
                 <CartesianGrid strokeDasharray="3 3" className="stroke-border" vertical={false} />
                 <XAxis dataKey="week" className="text-xs" tickLine={false} axisLine={false} />
                 <YAxis className="text-xs" tickLine={false} axisLine={false} />
-                <Tooltip contentStyle={{ borderRadius: '12px', border: '1px solid hsl(var(--border))', backgroundColor: 'hsl(var(--card))' }} />
-                <Legend wrapperStyle={{ paddingTop: '16px' }} />
-                {trends?.map((user, idx) => (
-                  <Line key={user.userId} type="monotone" dataKey={user.name}
-                    stroke={chartColors[idx % chartColors.length]} strokeWidth={2.5}
-                    dot={{ r: 3, strokeWidth: 2 }} activeDot={{ r: 5 }}
+                <Tooltip
+                  contentStyle={{
+                    borderRadius: "12px",
+                    border: "1px solid hsl(var(--border))",
+                    backgroundColor: "hsl(var(--card))",
+                  }}
+                />
+                <Legend wrapperStyle={{ paddingTop: "16px" }} />
+                {trends?.map((u, idx) => (
+                  <Line
+                    key={u.userId}
+                    type="monotone"
+                    dataKey={u.name}
+                    stroke={getUserColor(u.userId, idx)}
+                    strokeWidth={2.5}
+                    dot={{ r: 3, strokeWidth: 2 }}
+                    activeDot={{ r: 5 }}
                   />
                 ))}
               </LineChart>
@@ -170,51 +202,6 @@ export default function Leaderboard() {
           </CardContent>
         </Card>
       )}
-
-      {/* Pick popularity — active week, overlapping picker icons */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Week {activeWeek} Pick Split</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {popularity && popularity.length > 0 ? (
-            popularity.map(pop => (
-              <div key={pop.matchId} className="space-y-1.5">
-                <div className="flex items-center justify-between gap-3">
-                  {/* Away team pickers */}
-                  <div className="flex items-center gap-2 flex-1 min-w-0">
-                    <TeamLogo team={pop.awayTeam} size={22} />
-                    <span className="text-sm font-medium truncate">{pop.awayTeam}</span>
-                    <PickerAvatars names={pop.awayPickerNames} />
-                  </div>
-
-                  {/* Center divider */}
-                  <span className="text-xs text-muted-foreground shrink-0">vs</span>
-
-                  {/* Home team pickers */}
-                  <div className="flex items-center gap-2 flex-1 min-w-0 justify-end">
-                    <PickerAvatars names={pop.homePickerNames} />
-                    <span className="text-sm font-medium truncate text-right">{pop.homeTeam}</span>
-                    <TeamLogo team={pop.homeTeam} size={22} />
-                  </div>
-                </div>
-
-                {/* Bar */}
-                <div className="h-1.5 w-full bg-secondary rounded-full overflow-hidden flex">
-                  {pop.awayPickCount > 0 && (
-                    <div className="h-full bg-primary rounded-l-full" style={{ width: `${pop.awayPickPct}%` }} />
-                  )}
-                  {pop.homePickCount > 0 && (
-                    <div className="h-full bg-chart-2 rounded-r-full" style={{ width: `${pop.homePickPct}%` }} />
-                  )}
-                </div>
-              </div>
-            ))
-          ) : (
-            <div className="text-center text-muted-foreground py-6">No picks made for Week {activeWeek} yet.</div>
-          )}
-        </CardContent>
-      </Card>
     </div>
   );
 }

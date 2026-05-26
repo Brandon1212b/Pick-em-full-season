@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/lib/auth";
-import { LogOut, LayoutDashboard, Grid, Trophy, Shield } from "lucide-react";
+import { LogOut, LayoutDashboard, Grid, Trophy, HelpCircle, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -10,14 +10,34 @@ import {
   useGetUserPicksForWeek,
   useUpdateUser,
   getGetUserPicksForWeekQueryKey,
+  getGetSeasonStatusQueryKey,
 } from "@workspace/api-client-react";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
-const AVATAR_EMOJIS = ["🏈", "🦅", "🐻", "🐆", "🦁", "🐯", "🦊", "🐺", "🦈", "🐬", "🔥", "⚡", "🌪️", "💥", "🎯", "🏆", "👑", "💰", "🎲", "🃏"];
+const PROFILE_COLORS = [
+  "#007AFF", "#FF6B35", "#34C759", "#AF52DE",
+  "#FF2D55", "#5AC8FA", "#FFCC00", "#FF9500",
+  "#00C7BE", "#30D158",
+];
+
+function getInitials(name: string): string {
+  const parts = name.trim().split(/\s+/);
+  if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
+  return name.slice(0, 2).toUpperCase();
+}
+
+function UserAvatar({ name, color, size = "sm" }: { name: string; color?: string | null; size?: "sm" | "lg" }) {
+  const bg = color ?? "#007AFF";
+  const dim = size === "lg" ? "w-14 h-14 text-xl" : "w-8 h-8 text-xs";
+  return (
+    <div
+      className={`${dim} rounded-full flex items-center justify-center font-bold text-white select-none shrink-0`}
+      style={{ backgroundColor: bg }}
+    >
+      {getInitials(name)}
+    </div>
+  );
+}
 
 function NavStats({ userId }: { userId: number }) {
   const [, setLocation] = useLocation();
@@ -71,10 +91,7 @@ function ProfileButton() {
   const updateUser = useUpdateUser({
     mutation: {
       onSuccess: (updated) => {
-        if (user) {
-          const next = { ...user, name: updated.name };
-          setUser(next);
-        }
+        if (user) setUser({ ...user, name: updated.name, avatar: updated.avatar ?? null });
         setOpen(false);
       },
     },
@@ -82,9 +99,7 @@ function ProfileButton() {
 
   if (!user) return null;
 
-  const avatarStr = (user as any).avatar as string | null | undefined;
-  const isEmoji = avatarStr && avatarStr.length <= 4 && /\p{Emoji}/u.test(avatarStr);
-  const displayAvatar = isEmoji ? avatarStr : user.name[0]?.toUpperCase();
+  const avatarColor = user.avatar ?? "#007AFF";
 
   const handleSaveName = () => {
     const trimmed = editName.trim();
@@ -92,19 +107,9 @@ function ProfileButton() {
     updateUser.mutate({ userId: user.id, data: { name: trimmed } });
   };
 
-  const handleSetEmoji = (emoji: string) => {
-    updateUser.mutate({
-      userId: user.id,
-      data: { avatar: emoji },
-    });
-    // Optimistically update avatar locally
-    const saved = localStorage.getItem("auth_user");
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        localStorage.setItem("auth_user", JSON.stringify({ ...parsed, avatar: emoji }));
-      } catch {}
-    }
+  const handleSetColor = (color: string) => {
+    updateUser.mutate({ userId: user.id, data: { avatar: color } });
+    setUser({ ...user, avatar: color });
   };
 
   const isCommish = user.name === "Bfabs";
@@ -112,38 +117,31 @@ function ProfileButton() {
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <button
-          className="w-8 h-8 rounded-full bg-primary/20 border border-primary/30 flex items-center justify-center text-sm font-bold text-primary hover:bg-primary/30 transition-colors select-none"
-          title={`Profile: ${user.name}`}
-        >
-          {displayAvatar}
+        <button title={`Profile: ${user.name}`}>
+          <UserAvatar name={user.name} color={avatarColor} size="sm" />
         </button>
       </PopoverTrigger>
       <PopoverContent align="end" className="w-72 p-4 space-y-4">
-        {/* User name */}
         <div className="text-center">
-          <div className="w-14 h-14 rounded-full bg-primary/20 border-2 border-primary/30 flex items-center justify-center text-2xl mx-auto mb-2">
-            {displayAvatar}
+          <div className="flex justify-center mb-2">
+            <UserAvatar name={user.name} color={avatarColor} size="lg" />
           </div>
           <p className="font-semibold">{user.name}</p>
-          {isCommish && (
-            <span className="text-xs text-primary font-medium">Commissioner 👑</span>
-          )}
+          {isCommish && <span className="text-xs text-primary font-medium">Commissioner 👑</span>}
         </div>
 
-        {/* Emoji avatar picker */}
+        {/* Color picker */}
         <div>
-          <p className="text-xs font-medium text-muted-foreground mb-2">Choose avatar</p>
-          <div className="grid grid-cols-10 gap-0.5">
-            {AVATAR_EMOJIS.map((emoji) => (
+          <p className="text-xs font-medium text-muted-foreground mb-2">Profile color</p>
+          <div className="flex flex-wrap gap-2">
+            {PROFILE_COLORS.map((color) => (
               <button
-                key={emoji}
-                className={`text-base p-0.5 rounded hover:bg-secondary transition-colors ${avatarStr === emoji ? "bg-primary/20" : ""}`}
-                onClick={() => handleSetEmoji(emoji)}
-                title={emoji}
-              >
-                {emoji}
-              </button>
+                key={color}
+                className={`w-7 h-7 rounded-full transition-transform hover:scale-110 ${avatarColor === color ? "ring-2 ring-offset-2 ring-offset-card ring-white scale-110" : ""}`}
+                style={{ backgroundColor: color }}
+                onClick={() => handleSetColor(color)}
+                title={color}
+              />
             ))}
           </div>
         </div>
@@ -172,6 +170,13 @@ function ProfileButton() {
         </div>
 
         <div className="border-t pt-3 space-y-1">
+          <button
+            className="flex items-center gap-2 w-full text-sm text-muted-foreground font-medium px-2 py-1.5 rounded-lg hover:bg-secondary transition-colors"
+            onClick={() => { setOpen(false); setLocation("/help"); }}
+          >
+            <HelpCircle className="w-4 h-4" />
+            How to Play
+          </button>
           {isCommish && (
             <button
               className="flex items-center gap-2 w-full text-sm text-primary font-medium px-2 py-1.5 rounded-lg hover:bg-primary/10 transition-colors"
@@ -197,19 +202,17 @@ function ProfileButton() {
 export function AppLayout({ children }: { children: React.ReactNode }) {
   const [location, setLocation] = useLocation();
   const { user } = useAuth();
-
-  useEffect(() => {
-    if (!user && location !== "/") {
-      setLocation("/");
-    }
-  }, [user, location, setLocation]);
+  const { data: status } = useGetSeasonStatus({ query: { enabled: !!user, queryKey: getGetSeasonStatusQueryKey() } });
 
   if (!user && location !== "/") {
+    setLocation("/");
     return null;
   }
 
+  const activeWeek = (status?.lastCompletedWeek ?? 0) + 1;
+
   const navItems = [
-    { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+    { href: "/dashboard", label: `Week ${activeWeek}`, icon: LayoutDashboard },
     { href: "/picks", label: "Picks", icon: Grid },
     { href: "/leaderboard", label: "Standings", icon: Trophy },
   ];

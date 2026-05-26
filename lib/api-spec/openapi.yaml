@@ -544,19 +544,27 @@ components:
 
     LeaderboardEntry:
       type: object
-      required: [userId, name, totalPoints, rank, correctPicks, totalPicks, badges]
+      required: [userId, name, totalPoints, rank, correctPicks, wrongPicks, totalPicks, weekHighScoreCount, weekLowScoreCount, badges]
       properties:
         userId:
           type: integer
         name:
           type: string
+        avatar:
+          type: ["string", "null"]
         totalPoints:
           type: integer
         rank:
           type: integer
         correctPicks:
           type: integer
+        wrongPicks:
+          type: integer
         totalPicks:
+          type: integer
+        weekHighScoreCount:
+          type: integer
+        weekLowScoreCount:
           type: integer
         badges:
           type: array
@@ -571,6 +579,8 @@ components:
           type: integer
         name:
           type: string
+        avatar:
+          type: ["string", "null"]
         weeklyPoints:
           type: array
           items:
@@ -630,6 +640,8 @@ components:
           type: array
           items:
             type: string
+        gameTime:
+          type: ["string", "null"]
 
     SeasonStatus:
       type: object

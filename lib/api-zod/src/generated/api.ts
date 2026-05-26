@@ -255,10 +255,14 @@ export const AutofillPicksResponse = zod.array(AutofillPicksResponseItem)
 export const GetLeaderboardResponseItem = zod.object({
   "userId": zod.number(),
   "name": zod.string(),
+  "avatar": zod.string().nullish(),
   "totalPoints": zod.number(),
   "rank": zod.number(),
   "correctPicks": zod.number(),
+  "wrongPicks": zod.number(),
   "totalPicks": zod.number(),
+  "weekHighScoreCount": zod.number(),
+  "weekLowScoreCount": zod.number(),
   "badges": zod.array(zod.string())
 })
 export const GetLeaderboardResponse = zod.array(GetLeaderboardResponseItem)
@@ -270,6 +274,7 @@ export const GetLeaderboardResponse = zod.array(GetLeaderboardResponseItem)
 export const GetLeaderboardTrendsResponseItem = zod.object({
   "userId": zod.number(),
   "name": zod.string(),
+  "avatar": zod.string().nullish(),
   "weeklyPoints": zod.array(zod.number())
 })
 export const GetLeaderboardTrendsResponse = zod.array(GetLeaderboardTrendsResponseItem)
@@ -306,7 +311,8 @@ export const GetPickPopularityResponseItem = zod.object({
   "homePickCount": zod.number(),
   "awayPickCount": zod.number(),
   "homePickerNames": zod.array(zod.string()),
-  "awayPickerNames": zod.array(zod.string())
+  "awayPickerNames": zod.array(zod.string()),
+  "gameTime": zod.string().nullish()
 })
 export const GetPickPopularityResponse = zod.array(GetPickPopularityResponseItem)
 

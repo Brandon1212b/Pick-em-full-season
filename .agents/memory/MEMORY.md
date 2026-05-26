@@ -1,3 +1,5 @@
 - [Team logo ESPN mappings](team-logo-espn.md) — WAS maps to "wsh" in ESPN CDN; all others lowercase as-is
 - [Pick popularity API](pick-popularity-api.md) — returns active week only (lastCompleted+1); includes counts + picker names for icon stacks
-- [User avatar column](user-avatar.md) — nullable text column added to users table; stored as emoji string; PATCH /users/:userId updates name and/or avatar
+- [User avatar column](user-avatar.md) — stores hex color (#007AFF format); shows initials on circle; PATCH /users/:userId updates name and/or avatar
+- [Leaderboard schema additions](leaderboard-schema.md) — wrongPicks, weekHighScoreCount, weekLowScoreCount, avatar added to LeaderboardEntry; TrendEntry also has avatar
+- [Profile color palette](profile-colors.md) — 10 hex colors defined in users.ts and layout.tsx; new users auto-assigned unused color on join
