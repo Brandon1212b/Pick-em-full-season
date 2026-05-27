@@ -10,10 +10,6 @@ router.get("/leaderboard", async (_req, res) => {
   const completedMatches = matches.filter((m) => m.isCompleted);
   const completedMatchIds = new Set(completedMatches.map((m) => m.id));
 
-  const lastWeek = completedMatches.length > 0 ? Math.max(...completedMatches.map((m) => m.week)) : 0;
-  const lastWeekMatches = completedMatches.filter((m) => m.week === lastWeek);
-  const lastWeekMatchIds = new Set(lastWeekMatches.map((m) => m.id));
-
   // Compute per-week high/low score counts
   const completedWeeks = [...new Set(completedMatches.map((m) => m.week))].sort((a, b) => a - b);
   const weekHighScoreCounts: Record<number, number> = {};
@@ -50,15 +46,20 @@ router.get("/leaderboard", async (_req, res) => {
 
     const badges: string[] = [];
 
-    // Perfect Week
-    const lwPicks = userPicks.filter((p) => lastWeekMatchIds.has(p.matchId));
-    const lwCorrect = lwPicks.filter((p) => {
-      const m = lastWeekMatches.find((m) => m.id === p.matchId);
-      return m && p.selectedTeam === m.winner;
-    });
-    if (lastWeek > 0 && lwPicks.length > 0 && lwPicks.length === lastWeekMatches.length && lwCorrect.length === lwPicks.length) {
-      badges.push("Perfect Week");
+    // Perfect Week — check ALL completed weeks, award if user got every game right in any week
+    let hadPerfectWeek = false;
+    for (const week of completedWeeks) {
+      const weekMatches = completedMatches.filter((m) => m.week === week);
+      if (weekMatches.length === 0) continue;
+      const weekPicksByUser = userPicks.filter((p) => weekMatches.some((m) => m.id === p.matchId));
+      if (weekPicksByUser.length !== weekMatches.length) continue; // didn't pick all games
+      const allCorrect = weekPicksByUser.every((p) => {
+        const m = weekMatches.find((m) => m.id === p.matchId);
+        return m && p.selectedTeam === m.winner;
+      });
+      if (allCorrect) { hadPerfectWeek = true; break; }
     }
+    if (hadPerfectWeek) badges.push("Perfect Week");
 
     return {
       userId: u.id,
@@ -143,14 +144,20 @@ router.get("/leaderboard/weekly-extremes", async (_req, res) => {
   });
 });
 
-router.get("/leaderboard/pick-popularity", async (_req, res) => {
+router.get("/leaderboard/pick-popularity", async (req, res) => {
   const picks = await db.select().from(picksTable);
   const matches = await db.select().from(matchesTable);
   const users = await db.select().from(usersTable);
   const [cfg] = await db.select().from(seasonConfigTable).limit(1);
 
   const lastCompleted = cfg?.lastCompletedWeek ?? 0;
-  const activeWeek = lastCompleted + 1 <= 18 ? lastCompleted + 1 : 18;
+
+  // Optional week query param — defaults to active week
+  const weekParam = req.query.week ? parseInt(req.query.week as string, 10) : null;
+  const activeWeek = (weekParam && !isNaN(weekParam) && weekParam >= 1 && weekParam <= 18)
+    ? weekParam
+    : (lastCompleted + 1 <= 18 ? lastCompleted + 1 : 18);
+
   const weekMatches = matches.filter((m) => m.week === activeWeek);
 
   const result = weekMatches.map((m) => {
@@ -176,6 +183,8 @@ router.get("/leaderboard/pick-popularity", async (_req, res) => {
       homePickerNames,
       awayPickerNames,
       gameTime: m.gameTime ?? null,
+      isCompleted: m.isCompleted,
+      winner: m.winner ?? null,
     };
   });
 

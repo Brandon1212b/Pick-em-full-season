@@ -540,7 +540,7 @@ components:
           type: integer
         mode:
           type: string
-          enum: [favorites, home, random]
+          enum: [favorites, home, away, random]
 
     LeaderboardEntry:
       type: object

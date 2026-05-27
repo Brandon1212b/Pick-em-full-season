@@ -63,6 +63,16 @@ router.get("/picks/user/:userId/week/:week", async (req, res) => {
   res.json(weekPicks.map((p) => serializePick(p, matchMap[p.matchId])));
 });
 
+// Clear all picks for a user (used by Reset on the picks page)
+router.delete("/picks/user/:userId/clear", async (req, res) => {
+  const userId = parseInt(req.params.userId, 10);
+  if (isNaN(userId)) { res.status(400).json({ error: "Invalid userId" }); return; }
+  const locked = await isSeasonLocked();
+  if (locked) { res.status(403).json({ error: "Season has started, picks are locked" }); return; }
+  await db.delete(picksTable).where(eq(picksTable.userId, userId));
+  res.json({ success: true, userId });
+});
+
 router.post("/picks/save", async (req, res) => {
   const parsed = SavePicksBody.safeParse(req.body);
   if (!parsed.success) { res.status(400).json({ error: "Invalid request body" }); return; }
@@ -117,8 +127,12 @@ router.post("/picks/autofill", async (req, res) => {
     } else if (mode === "favorites") {
       const spread = m.pointSpread ?? "";
       const spreadNum = parseFloat(spread);
-      team = (!isNaN(spreadNum) && spreadNum < 0) ? m.homeTeam : m.awayTeam;
+      // Negative spread = home team is favored; if no valid spread, pick home
+      team = (!isNaN(spreadNum) && spreadNum < 0) ? m.homeTeam : (!isNaN(spreadNum) && spreadNum > 0) ? m.awayTeam : m.homeTeam;
+    } else if (mode === "away") {
+      team = m.awayTeam;
     } else {
+      // "home" (default)
       team = m.homeTeam;
     }
     newPicks.push({ userId, matchId: m.id, selectedTeam: team, isLock: false, pointsEarned: 0 });

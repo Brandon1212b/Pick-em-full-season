@@ -75,6 +75,7 @@ export type AutofillInputMode = typeof AutofillInputMode[keyof typeof AutofillIn
 export const AutofillInputMode = {
   favorites: 'favorites',
   home: 'home',
+  away: 'away',
   random: 'random',
 } as const;
 

@@ -6,18 +6,17 @@ import {
   useListMatches,
   useGetUserPicks,
   useGetLeaderboard,
-  useGetPickPopularity,
   useListSmackMessages,
   usePostSmackMessage,
   getGetUserPicksQueryKey,
   getListSmackMessagesQueryKey,
 } from "@workspace/api-client-react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Send } from "lucide-react";
-import { useQueryClient } from "@tanstack/react-query";
 import { formatDistanceToNow } from "date-fns";
 import { TeamLogo } from "@/lib/team-logos";
 import { getTeamColor } from "@/lib/team-colors";
@@ -65,11 +64,29 @@ function PickerAvatars({
   );
 }
 
+interface PopularityItem {
+  matchId: number;
+  week: number;
+  homeTeam: string;
+  awayTeam: string;
+  homePickCount: number;
+  awayPickCount: number;
+  homePickPct: number;
+  awayPickPct: number;
+  homePickerNames: string[];
+  awayPickerNames: string[];
+  gameTime: string | null;
+  isCompleted?: boolean;
+  winner?: string | null;
+}
+
 export default function Dashboard() {
   const { user } = useAuth();
   const [, setLocation] = useLocation();
   const queryClient = useQueryClient();
   const [smackText, setSmackText] = useState("");
+  // null = default (active week), number = user-selected week
+  const [selectedWeek, setSelectedWeek] = useState<number | null>(null);
 
   const { data: status } = useGetSeasonStatus();
   const { data: allMatches } = useListMatches();
@@ -77,7 +94,6 @@ export default function Dashboard() {
     query: { enabled: !!user?.id, queryKey: getGetUserPicksQueryKey(user?.id || 0) },
   });
   const { data: leaderboard } = useGetLeaderboard();
-  const { data: popularity } = useGetPickPopularity();
   const { data: smackMessages } = useListSmackMessages({
     query: { refetchInterval: 15000, queryKey: getListSmackMessagesQueryKey() },
   });
@@ -93,6 +109,18 @@ export default function Dashboard() {
 
   const userStats = leaderboard?.find((e) => e.userId === user?.id);
   const activeWeek = (status?.lastCompletedWeek ?? 0) + 1;
+  const displayWeek = selectedWeek ?? activeWeek;
+
+  // Fetch pick popularity for the selected week via direct fetch (supports week param)
+  const { data: popularity } = useQuery<PopularityItem[]>({
+    queryKey: ["pick-popularity", displayWeek],
+    queryFn: async () => {
+      const res = await fetch(`/api/leaderboard/pick-popularity?week=${displayWeek}`);
+      if (!res.ok) throw new Error("Failed to fetch popularity");
+      return res.json() as Promise<PopularityItem[]>;
+    },
+    enabled: displayWeek > 0,
+  });
 
   // Map user names → their avatar color (for picker avatars)
   const userColorMap = useMemo(() => {
@@ -102,25 +130,6 @@ export default function Dashboard() {
     }
     return map;
   }, [leaderboard]);
-
-  // Team records: count wins/losses per team from user's picks
-  const teamRecordsSorted = useMemo(() => {
-    if (!allMatches || !picks) return [];
-    const records: Record<string, { wins: number; losses: number }> = {};
-    for (const match of allMatches) {
-      const pick = picks.find((p) => p.matchId === match.id);
-      if (!pick?.selectedTeam) continue;
-      const pickedTeam = pick.selectedTeam;
-      const otherTeam = pickedTeam === match.homeTeam ? match.awayTeam : match.homeTeam;
-      if (!records[pickedTeam]) records[pickedTeam] = { wins: 0, losses: 0 };
-      if (!records[otherTeam]) records[otherTeam] = { wins: 0, losses: 0 };
-      records[pickedTeam].wins += 1;
-      records[otherTeam].losses += 1;
-    }
-    return Object.entries(records)
-      .map(([team, rec]) => ({ team, ...rec }))
-      .sort((a, b) => b.wins - a.wins || a.losses - b.losses);
-  }, [allMatches, picks]);
 
   const handleSmackSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -161,23 +170,72 @@ export default function Dashboard() {
 
       {/* Week Pick Split */}
       <Card>
-        <CardHeader className="pb-3">
-          <CardTitle>Week {activeWeek} Pick Split</CardTitle>
+        <CardHeader className="pb-2">
+          <div className="flex items-center justify-between">
+            <CardTitle>
+              Week {displayWeek} Pick Split
+              {displayWeek !== activeWeek && (
+                <button
+                  onClick={() => setSelectedWeek(null)}
+                  className="ml-2 text-xs font-normal text-primary hover:underline"
+                >
+                  ← Back to current
+                </button>
+              )}
+            </CardTitle>
+          </div>
+          {/* Week selector */}
+          <div className="flex gap-1.5 overflow-x-auto pb-1 mt-2 no-scrollbar">
+            {Array.from({ length: 18 }, (_, i) => i + 1).map((week) => (
+              <button
+                key={week}
+                onClick={() => setSelectedWeek(week === activeWeek ? null : week)}
+                className={`flex-shrink-0 px-3 py-1 rounded-full text-xs font-semibold transition-colors ${
+                  displayWeek === week
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-secondary text-muted-foreground hover:bg-secondary/80"
+                }`}
+              >
+                W{week}
+              </button>
+            ))}
+          </div>
         </CardHeader>
-        <CardContent className="space-y-3">
+        <CardContent className="space-y-3 pt-1">
           {popularity && popularity.length > 0 ? (
             popularity.map((pop) => {
               const userPickedTeam = picks?.find((p) => p.matchId === pop.matchId)?.selectedTeam;
               const userPickedAway = userPickedTeam === pop.awayTeam;
               const userPickedHome = userPickedTeam === pop.homeTeam;
 
+              // Result indicators — look up from allMatches for accuracy
+              const match = allMatches?.find((m) => m.id === pop.matchId);
+              const isCompleted = match?.isCompleted ?? false;
+              const matchWinner = match?.winner ?? null;
+              const userCorrect = isCompleted && !!matchWinner && !!userPickedTeam && userPickedTeam === matchWinner;
+              const userWrong = isCompleted && !!matchWinner && !!userPickedTeam && userPickedTeam !== matchWinner;
+
               return (
                 <div
                   key={pop.matchId}
-                  className={`rounded-xl border p-3 space-y-2 ${
-                    userPickedTeam ? "border-primary/30 bg-primary/5" : "border-border bg-card"
+                  className={`rounded-xl border-2 p-3 space-y-2 relative ${
+                    userCorrect
+                      ? "border-green-500 bg-green-500/5"
+                      : userWrong
+                      ? "border-destructive/50 bg-destructive/5"
+                      : userPickedTeam
+                      ? "border-primary/30 bg-primary/5"
+                      : "border-border bg-card"
                   }`}
                 >
+                  {/* Result badge */}
+                  {userCorrect && (
+                    <div className="absolute top-2 right-2 w-5 h-5 bg-green-500 rounded-full flex items-center justify-center text-[9px] text-white font-bold leading-none">✓</div>
+                  )}
+                  {userWrong && (
+                    <div className="absolute top-2 right-2 w-5 h-5 bg-destructive rounded-full flex items-center justify-center text-[9px] text-white font-bold leading-none">✗</div>
+                  )}
+
                   {pop.gameTime && (
                     <div className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
                       {pop.gameTime}
@@ -189,18 +247,24 @@ export default function Dashboard() {
                       <TeamLogo team={pop.awayTeam} size={20} />
                       <span className="text-sm truncate">{pop.awayTeam}</span>
                       {userPickedAway && (
-                        <span className="text-[10px] bg-primary/20 text-primary px-1.5 py-0.5 rounded-full font-semibold shrink-0">✓</span>
+                        <span className="text-[10px] bg-primary/20 text-primary px-1.5 py-0.5 rounded-full font-semibold shrink-0">✓ my pick</span>
                       )}
                     </div>
                     <span className="text-xs text-muted-foreground shrink-0">@</span>
                     <div className={`flex items-center gap-1.5 flex-1 min-w-0 justify-end ${userPickedHome ? "font-bold text-primary" : ""}`}>
                       {userPickedHome && (
-                        <span className="text-[10px] bg-primary/20 text-primary px-1.5 py-0.5 rounded-full font-semibold shrink-0">✓</span>
+                        <span className="text-[10px] bg-primary/20 text-primary px-1.5 py-0.5 rounded-full font-semibold shrink-0">✓ my pick</span>
                       )}
                       <span className="text-sm truncate text-right">{pop.homeTeam}</span>
                       <TeamLogo team={pop.homeTeam} size={20} />
                     </div>
                   </div>
+
+                  {matchWinner && isCompleted && (
+                    <div className="text-xs text-muted-foreground font-medium">
+                      Final: <span className="text-foreground font-bold">{matchWinner}</span> wins
+                    </div>
+                  )}
 
                   <div className="flex items-center justify-between">
                     <PickerAvatars names={pop.awayPickerNames} colorMap={userColorMap} />
@@ -235,32 +299,11 @@ export default function Dashboard() {
             })
           ) : (
             <div className="text-center text-muted-foreground py-8">
-              No picks made for Week {activeWeek} yet.
+              No picks made for Week {displayWeek} yet.
             </div>
           )}
         </CardContent>
       </Card>
-
-      {/* Team Records */}
-      {teamRecordsSorted.length > 0 && (
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle>Your Team Records</CardTitle>
-            <p className="text-xs text-muted-foreground">How you have each team finishing based on your picks</p>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-2">
-              {teamRecordsSorted.map(({ team, wins, losses }) => (
-                <div key={team} className="flex flex-col items-center gap-1 p-2 rounded-xl bg-secondary/30 border border-border/50">
-                  <TeamLogo team={team} size={28} />
-                  <span className="text-[9px] font-bold text-muted-foreground uppercase tracking-wide">{team}</span>
-                  <span className="text-xs font-bold text-foreground">{wins}-{losses}</span>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      )}
 
       {/* Smack Board */}
       <Card>

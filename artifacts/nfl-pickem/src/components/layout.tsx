@@ -181,7 +181,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
 
   const navItems = [
     { href: "/dashboard", label: `Week ${activeWeek}`, icon: LayoutDashboard },
-    { href: "/picks", label: "Picks", icon: Grid },
+    { href: "/picks", label: "My Picks", icon: Grid },
     { href: "/leaderboard", label: "Standings", icon: Trophy },
   ];
 

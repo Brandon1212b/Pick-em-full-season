@@ -1,20 +1,36 @@
 ---
 name: Picks lock flow
-description: After all 288 picks submitted, auto-locks into a summary view via localStorage
+description: When/how the picks page shows the locked summary view vs editing view
 ---
 
-When user saves and all 288 picks are filled, picks.tsx auto-sets localStorage key `picks_locked_${userId}` to `"true"` and shows a locked summary view.
+## showLockedView derivation
+```typescript
+const allPicksOnServer = !loadingPicks && !loadingMatches &&
+  (picks?.length ?? 0) >= totalMatches && totalMatches > 0;
+const showLockedView = allPicksOnServer && !isUnlocked && !hasUnsavedChanges;
+```
 
-**Lock trigger:** In `savePicks.onSuccess`, uses refs (`localPicksRef`, `matchesLengthRef`) to check pick count vs total matches count at callback time (avoids stale closure).
+## isUnlocked state
+- `isUnlocked` initialized from `localStorage.getItem(picks_unlocked_{userId}) === "true"`
+- Set to true when user clicks "Edit Picks" → also writes to localStorage
+- Cleared when user saves all 288 picks → `localStorage.removeItem(picksUnlockedKey)` + `setIsUnlocked(false)`
+- Cleared when user resets picks → same removal
 
-**Locked view:** Week-by-week cards showing team logos the user picked to win.
-- Green border + ✓ badge = correct pick (match.isCompleted && selectedTeam === winner)
-- Red border + ✗ badge = wrong pick (completed, different winner)
-- Gray border = pending (not yet completed)
-- Header shows: "Week N" + W-L record for that week's completed games
+## Locked view layout (descending order)
+1. **Current week** (activeWeek = lastCompletedWeek + 1) — shown first, highlighted with "Current" badge
+2. **Past weeks** — shown in descending order (most recent first)
+3. **Future weeks** — collapsed behind a toggle button (default hidden)
 
-**Unlock:** `localStorage.removeItem(picksLockedKey)` → `setPicksSubmitted(false)` → returns to editing view. Only shown in pre-season (season mode !== "in-season").
+## skipHasUnsavedChangesReset ref
+Prevents useEffect([picks]) from resetting hasUnsavedChanges after autofill invalidates the query.
+```typescript
+skipHasUnsavedChangesReset.current = true; // set in autofillPicks.onSuccess
+// In useEffect:
+if (!skipHasUnsavedChangesReset.current) setHasUnsavedChanges(false);
+skipHasUnsavedChangesReset.current = false;
+```
 
-**Why:** Provides a clean "submitted" confirmation state so users see their full 18-week ballot at a glance without the editing UI getting in the way.
-
-**How to apply:** The lock is purely client-side (localStorage). Server doesn't know about it. The season mode toggle in admin is the server-side lock.
+## Team records in picks page
+`teamRecordsSorted` computed from picks + matches (both already available). Shown:
+- As horizontal scrollable row in editing view
+- As grid in locked view footer
