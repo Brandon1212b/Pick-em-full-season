@@ -100,6 +100,15 @@ export default function Leaderboard() {
     }
   }
 
+  // Current week points per user: use the last completed week from extremes
+  const currentWeek = extremes?.week ?? 0;
+  const thisWeekPts: Record<number, number> = {};
+  if (currentWeek > 0 && trends) {
+    for (const u of trends) {
+      thisWeekPts[u.userId] = u.weeklyPoints[currentWeek - 1] ?? 0;
+    }
+  }
+
   const getUserColor = (userId: number, idx: number): string => {
     const entry = leaderboard?.find((e) => e.userId === userId);
     return entry?.avatar ?? FALLBACK_COLORS[idx % FALLBACK_COLORS.length];
@@ -123,7 +132,10 @@ export default function Leaderboard() {
               <TableRow>
                 <TableHead className="w-12">Rank</TableHead>
                 <TableHead>Player</TableHead>
-                <TableHead className="text-right">Points</TableHead>
+                <TableHead className="text-right whitespace-nowrap">
+                  {currentWeek > 0 ? `Wk ${currentWeek}` : "Pts"}
+                </TableHead>
+                <TableHead className="text-right">Total</TableHead>
                 <TableHead className="text-right">Record</TableHead>
               </TableRow>
             </TableHeader>
@@ -146,7 +158,12 @@ export default function Leaderboard() {
                       })}
                     </div>
                   </TableCell>
-                  <TableCell className="text-right font-bold text-lg">{entry.totalPoints}</TableCell>
+                  <TableCell className="text-right font-bold text-lg">
+                    {currentWeek > 0 ? (thisWeekPts[entry.userId] ?? 0) : entry.totalPoints}
+                  </TableCell>
+                  <TableCell className="text-right text-muted-foreground font-medium">
+                    {entry.totalPoints}
+                  </TableCell>
                   <TableCell className="text-right text-muted-foreground text-sm">
                     {entry.correctPicks}-{entry.wrongPicks}
                   </TableCell>
