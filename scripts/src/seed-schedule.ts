@@ -17,9 +17,377 @@ type MatchSeed = {
   homeTeam: string;
   awayTeam: string;
   gameTime?: string;
-  pointSpread?: string;
-  injuryWeatherFlags?: string;
 };
+
+// 2026-27 NFL Regular Season Schedule — official matchups, dates, and times ET
+// gameTime format: "DayAbbrev H:MMam/pm" — shown in picks grid stacked vertically
+const schedule: MatchSeed[] = [
+  // ── WEEK 1 ──────────────────────────────────────────────────────────────────
+  // Wed Sep 9
+  { week: 1, awayTeam: "NE",  homeTeam: "SEA", gameTime: "Wed 8:20pm" },
+  // Thu Sep 10
+  { week: 1, awayTeam: "SF",  homeTeam: "LAR", gameTime: "Thu 8:35pm" },
+  // Sun Sep 13
+  { week: 1, awayTeam: "ATL", homeTeam: "PIT", gameTime: "Sun 1:00pm" },
+  { week: 1, awayTeam: "BAL", homeTeam: "IND", gameTime: "Sun 1:00pm" },
+  { week: 1, awayTeam: "BUF", homeTeam: "HOU", gameTime: "Sun 1:00pm" },
+  { week: 1, awayTeam: "CHI", homeTeam: "CAR", gameTime: "Sun 1:00pm" },
+  { week: 1, awayTeam: "CLE", homeTeam: "JAX", gameTime: "Sun 1:00pm" },
+  { week: 1, awayTeam: "NO",  homeTeam: "DET", gameTime: "Sun 1:00pm" },
+  { week: 1, awayTeam: "NYJ", homeTeam: "TEN", gameTime: "Sun 1:00pm" },
+  { week: 1, awayTeam: "TB",  homeTeam: "CIN", gameTime: "Sun 1:00pm" },
+  { week: 1, awayTeam: "ARI", homeTeam: "LAC", gameTime: "Sun 4:25pm" },
+  { week: 1, awayTeam: "GB",  homeTeam: "MIN", gameTime: "Sun 4:25pm" },
+  { week: 1, awayTeam: "MIA", homeTeam: "LV",  gameTime: "Sun 4:25pm" },
+  { week: 1, awayTeam: "WAS", homeTeam: "PHI", gameTime: "Sun 4:25pm" },
+  { week: 1, awayTeam: "DAL", homeTeam: "NYG", gameTime: "Sun 8:20pm" },
+  // Mon Sep 14
+  { week: 1, awayTeam: "DEN", homeTeam: "KC",  gameTime: "Mon 8:15pm" },
+
+  // ── WEEK 2 ──────────────────────────────────────────────────────────────────
+  // Thu Sep 17
+  { week: 2, awayTeam: "DET", homeTeam: "BUF", gameTime: "Thu 8:15pm" },
+  // Sun Sep 20
+  { week: 2, awayTeam: "CAR", homeTeam: "ATL", gameTime: "Sun 1:00pm" },
+  { week: 2, awayTeam: "CIN", homeTeam: "HOU", gameTime: "Sun 1:00pm" },
+  { week: 2, awayTeam: "CLE", homeTeam: "TB",  gameTime: "Sun 1:00pm" },
+  { week: 2, awayTeam: "GB",  homeTeam: "NYJ", gameTime: "Sun 1:00pm" },
+  { week: 2, awayTeam: "MIN", homeTeam: "CHI", gameTime: "Sun 1:00pm" },
+  { week: 2, awayTeam: "NO",  homeTeam: "BAL", gameTime: "Sun 1:00pm" },
+  { week: 2, awayTeam: "PHI", homeTeam: "TEN", gameTime: "Sun 1:00pm" },
+  { week: 2, awayTeam: "PIT", homeTeam: "NE",  gameTime: "Sun 1:00pm" },
+  { week: 2, awayTeam: "JAX", homeTeam: "DEN", gameTime: "Sun 4:05pm" },
+  { week: 2, awayTeam: "LV",  homeTeam: "LAC", gameTime: "Sun 4:05pm" },
+  { week: 2, awayTeam: "MIA", homeTeam: "SF",  gameTime: "Sun 4:25pm" },
+  { week: 2, awayTeam: "SEA", homeTeam: "ARI", gameTime: "Sun 4:25pm" },
+  { week: 2, awayTeam: "WAS", homeTeam: "DAL", gameTime: "Sun 4:25pm" },
+  { week: 2, awayTeam: "IND", homeTeam: "KC",  gameTime: "Sun 8:20pm" },
+  // Mon Sep 21
+  { week: 2, awayTeam: "NYG", homeTeam: "LAR", gameTime: "Mon 8:15pm" },
+
+  // ── WEEK 3 ──────────────────────────────────────────────────────────────────
+  // Thu Sep 24
+  { week: 3, awayTeam: "ATL", homeTeam: "GB",  gameTime: "Thu 8:15pm" },
+  // Sun Sep 27
+  { week: 3, awayTeam: "CAR", homeTeam: "CLE", gameTime: "Sun 1:00pm" },
+  { week: 3, awayTeam: "CIN", homeTeam: "PIT", gameTime: "Sun 1:00pm" },
+  { week: 3, awayTeam: "HOU", homeTeam: "IND", gameTime: "Sun 1:00pm" },
+  { week: 3, awayTeam: "KC",  homeTeam: "MIA", gameTime: "Sun 1:00pm" },
+  { week: 3, awayTeam: "LAC", homeTeam: "BUF", gameTime: "Sun 1:00pm" },
+  { week: 3, awayTeam: "NE",  homeTeam: "JAX", gameTime: "Sun 1:00pm" },
+  { week: 3, awayTeam: "NYJ", homeTeam: "DET", gameTime: "Sun 1:00pm" },
+  { week: 3, awayTeam: "SEA", homeTeam: "WAS", gameTime: "Sun 1:00pm" },
+  { week: 3, awayTeam: "TEN", homeTeam: "NYG", gameTime: "Sun 1:00pm" },
+  { week: 3, awayTeam: "ARI", homeTeam: "SF",  gameTime: "Sun 4:05pm" },
+  { week: 3, awayTeam: "MIN", homeTeam: "TB",  gameTime: "Sun 4:05pm" },
+  { week: 3, awayTeam: "BAL", homeTeam: "DAL", gameTime: "Sun 4:25pm" },
+  { week: 3, awayTeam: "LV",  homeTeam: "NO",  gameTime: "Sun 4:25pm" },
+  { week: 3, awayTeam: "LAR", homeTeam: "DEN", gameTime: "Sun 8:20pm" },
+  // Mon Sep 28
+  { week: 3, awayTeam: "PHI", homeTeam: "CHI", gameTime: "Mon 8:15pm" },
+
+  // ── WEEK 4 ──────────────────────────────────────────────────────────────────
+  // Thu Oct 1
+  { week: 4, awayTeam: "PIT", homeTeam: "CLE", gameTime: "Thu 8:15pm" },
+  // Sun Oct 4 (London 9:30am ET)
+  { week: 4, awayTeam: "IND", homeTeam: "WAS", gameTime: "Sun 9:30am" },
+  { week: 4, awayTeam: "ARI", homeTeam: "NYG", gameTime: "Sun 1:00pm" },
+  { week: 4, awayTeam: "DAL", homeTeam: "HOU", gameTime: "Sun 1:00pm" },
+  { week: 4, awayTeam: "GB",  homeTeam: "TB",  gameTime: "Sun 1:00pm" },
+  { week: 4, awayTeam: "JAX", homeTeam: "CIN", gameTime: "Sun 1:00pm" },
+  { week: 4, awayTeam: "LAR", homeTeam: "PHI", gameTime: "Sun 1:00pm" },
+  { week: 4, awayTeam: "NE",  homeTeam: "BUF", gameTime: "Sun 1:00pm" },
+  { week: 4, awayTeam: "NYJ", homeTeam: "CHI", gameTime: "Sun 1:00pm" },
+  { week: 4, awayTeam: "TEN", homeTeam: "BAL", gameTime: "Sun 1:00pm" },
+  { week: 4, awayTeam: "MIA", homeTeam: "MIN", gameTime: "Sun 4:05pm" },
+  { week: 4, awayTeam: "DEN", homeTeam: "SF",  gameTime: "Sun 4:25pm" },
+  { week: 4, awayTeam: "KC",  homeTeam: "LV",  gameTime: "Sun 4:25pm" },
+  { week: 4, awayTeam: "LAC", homeTeam: "SEA", gameTime: "Sun 4:25pm" },
+  { week: 4, awayTeam: "DET", homeTeam: "CAR", gameTime: "Sun 8:20pm" },
+  // Mon Oct 5
+  { week: 4, awayTeam: "ATL", homeTeam: "NO",  gameTime: "Mon 8:15pm" },
+
+  // ── WEEK 5 ── BYE: CAR, KC ──────────────────────────────────────────────────
+  // Thu Oct 8
+  { week: 5, awayTeam: "TB",  homeTeam: "DAL", gameTime: "Thu 8:15pm" },
+  // Sun Oct 11 (London 9:30am ET)
+  { week: 5, awayTeam: "PHI", homeTeam: "JAX", gameTime: "Sun 9:30am" },
+  { week: 5, awayTeam: "CIN", homeTeam: "MIA", gameTime: "Sun 1:00pm" },
+  { week: 5, awayTeam: "CLE", homeTeam: "NYJ", gameTime: "Sun 1:00pm" },
+  { week: 5, awayTeam: "HOU", homeTeam: "TEN", gameTime: "Sun 1:00pm" },
+  { week: 5, awayTeam: "IND", homeTeam: "PIT", gameTime: "Sun 1:00pm" },
+  { week: 5, awayTeam: "LV",  homeTeam: "NE",  gameTime: "Sun 1:00pm" },
+  { week: 5, awayTeam: "MIN", homeTeam: "NO",  gameTime: "Sun 1:00pm" },
+  { week: 5, awayTeam: "NYG", homeTeam: "WAS", gameTime: "Sun 1:00pm" },
+  { week: 5, awayTeam: "DEN", homeTeam: "LAC", gameTime: "Sun 4:05pm" },
+  { week: 5, awayTeam: "CHI", homeTeam: "GB",  gameTime: "Sun 4:25pm" },
+  { week: 5, awayTeam: "DET", homeTeam: "ARI", gameTime: "Sun 4:25pm" },
+  { week: 5, awayTeam: "SF",  homeTeam: "SEA", gameTime: "Sun 4:25pm" },
+  { week: 5, awayTeam: "BAL", homeTeam: "ATL", gameTime: "Sun 8:20pm" },
+  // Mon Oct 12
+  { week: 5, awayTeam: "BUF", homeTeam: "LAR", gameTime: "Mon 8:15pm" },
+
+  // ── WEEK 6 ── BYE: CIN, DET, MIA, MIN ─────────────────────────────────────
+  // Thu Oct 15
+  { week: 6, awayTeam: "SEA", homeTeam: "DEN", gameTime: "Thu 8:15pm" },
+  // Sun Oct 18 (London 9:30am ET)
+  { week: 6, awayTeam: "HOU", homeTeam: "JAX", gameTime: "Sun 9:30am" },
+  { week: 6, awayTeam: "BAL", homeTeam: "CLE", gameTime: "Sun 1:00pm" },
+  { week: 6, awayTeam: "CAR", homeTeam: "PHI", gameTime: "Sun 1:00pm" },
+  { week: 6, awayTeam: "CHI", homeTeam: "ATL", gameTime: "Sun 1:00pm" },
+  { week: 6, awayTeam: "NO",  homeTeam: "NYG", gameTime: "Sun 1:00pm" },
+  { week: 6, awayTeam: "NYJ", homeTeam: "NE",  gameTime: "Sun 1:00pm" },
+  { week: 6, awayTeam: "PIT", homeTeam: "TB",  gameTime: "Sun 1:00pm" },
+  { week: 6, awayTeam: "TEN", homeTeam: "IND", gameTime: "Sun 1:00pm" },
+  { week: 6, awayTeam: "ARI", homeTeam: "LAR", gameTime: "Sun 4:05pm" },
+  { week: 6, awayTeam: "BUF", homeTeam: "LV",  gameTime: "Sun 4:25pm" },
+  { week: 6, awayTeam: "LAC", homeTeam: "KC",  gameTime: "Sun 4:25pm" },
+  { week: 6, awayTeam: "DAL", homeTeam: "GB",  gameTime: "Sun 8:20pm" },
+  // Mon Oct 19
+  { week: 6, awayTeam: "WAS", homeTeam: "SF",  gameTime: "Mon 8:15pm" },
+
+  // ── WEEK 7 ── BYE: BUF, JAX, LAC, WAS ─────────────────────────────────────
+  // Thu Oct 22
+  { week: 7, awayTeam: "NE",  homeTeam: "CHI", gameTime: "Thu 8:15pm" },
+  // Sun Oct 25 (London 9:30am ET)
+  { week: 7, awayTeam: "PIT", homeTeam: "NO",  gameTime: "Sun 9:30am" },
+  { week: 7, awayTeam: "CIN", homeTeam: "BAL", gameTime: "Sun 1:00pm" },
+  { week: 7, awayTeam: "CLE", homeTeam: "TEN", gameTime: "Sun 1:00pm" },
+  { week: 7, awayTeam: "IND", homeTeam: "MIN", gameTime: "Sun 1:00pm" },
+  { week: 7, awayTeam: "MIA", homeTeam: "NYJ", gameTime: "Sun 1:00pm" },
+  { week: 7, awayTeam: "NYG", homeTeam: "HOU", gameTime: "Sun 1:00pm" },
+  { week: 7, awayTeam: "SF",  homeTeam: "ATL", gameTime: "Sun 1:00pm" },
+  { week: 7, awayTeam: "TB",  homeTeam: "CAR", gameTime: "Sun 1:00pm" },
+  { week: 7, awayTeam: "DEN", homeTeam: "ARI", gameTime: "Sun 4:05pm" },
+  { week: 7, awayTeam: "GB",  homeTeam: "DET", gameTime: "Sun 4:25pm" },
+  { week: 7, awayTeam: "LAR", homeTeam: "LV",  gameTime: "Sun 4:25pm" },
+  { week: 7, awayTeam: "KC",  homeTeam: "SEA", gameTime: "Sun 8:20pm" },
+  // Mon Oct 26
+  { week: 7, awayTeam: "DAL", homeTeam: "PHI", gameTime: "Mon 8:15pm" },
+
+  // ── WEEK 8 ── BYE: HOU, NO, NYG, SF ───────────────────────────────────────
+  // Thu Oct 29
+  { week: 8, awayTeam: "CAR", homeTeam: "GB",  gameTime: "Thu 8:15pm" },
+  // Sun Nov 1
+  { week: 8, awayTeam: "ARI", homeTeam: "DAL", gameTime: "Sun 1:00pm" },
+  { week: 8, awayTeam: "ATL", homeTeam: "TB",  gameTime: "Sun 1:00pm" },
+  { week: 8, awayTeam: "BAL", homeTeam: "BUF", gameTime: "Sun 1:00pm" },
+  { week: 8, awayTeam: "CLE", homeTeam: "PIT", gameTime: "Sun 1:00pm" },
+  { week: 8, awayTeam: "IND", homeTeam: "JAX", gameTime: "Sun 1:00pm" },
+  { week: 8, awayTeam: "LV",  homeTeam: "NYJ", gameTime: "Sun 1:00pm" },
+  { week: 8, awayTeam: "MIN", homeTeam: "DET", gameTime: "Sun 1:00pm" },
+  { week: 8, awayTeam: "TEN", homeTeam: "CIN", gameTime: "Sun 1:00pm" },
+  { week: 8, awayTeam: "LAC", homeTeam: "LAR", gameTime: "Sun 4:05pm" },
+  { week: 8, awayTeam: "KC",  homeTeam: "DEN", gameTime: "Sun 4:25pm" },
+  { week: 8, awayTeam: "NE",  homeTeam: "MIA", gameTime: "Sun 4:25pm" },
+  { week: 8, awayTeam: "PHI", homeTeam: "WAS", gameTime: "Sun 8:20pm" },
+  // Mon Nov 2
+  { week: 8, awayTeam: "CHI", homeTeam: "SEA", gameTime: "Mon 8:15pm" },
+
+  // ── WEEK 9 ── BYE: PIT, TEN ────────────────────────────────────────────────
+  // Thu Nov 5
+  { week: 9, awayTeam: "JAX", homeTeam: "BAL", gameTime: "Thu 8:15pm" },
+  // Sun Nov 8 (London 9:30am ET)
+  { week: 9, awayTeam: "CIN", homeTeam: "ATL", gameTime: "Sun 9:30am" },
+  { week: 9, awayTeam: "CLE", homeTeam: "NO",  gameTime: "Sun 1:00pm" },
+  { week: 9, awayTeam: "DAL", homeTeam: "IND", gameTime: "Sun 1:00pm" },
+  { week: 9, awayTeam: "DEN", homeTeam: "CAR", gameTime: "Sun 1:00pm" },
+  { week: 9, awayTeam: "DET", homeTeam: "MIA", gameTime: "Sun 1:00pm" },
+  { week: 9, awayTeam: "LAR", homeTeam: "WAS", gameTime: "Sun 1:00pm" },
+  { week: 9, awayTeam: "NYG", homeTeam: "PHI", gameTime: "Sun 1:00pm" },
+  { week: 9, awayTeam: "NYJ", homeTeam: "KC",  gameTime: "Sun 1:00pm" },
+  { week: 9, awayTeam: "HOU", homeTeam: "LAC", gameTime: "Sun 4:05pm" },
+  { week: 9, awayTeam: "LV",  homeTeam: "SF",  gameTime: "Sun 4:05pm" },
+  { week: 9, awayTeam: "ARI", homeTeam: "SEA", gameTime: "Sun 4:25pm" },
+  { week: 9, awayTeam: "GB",  homeTeam: "NE",  gameTime: "Sun 4:25pm" },
+  { week: 9, awayTeam: "TB",  homeTeam: "CHI", gameTime: "Sun 8:20pm" },
+  // Mon Nov 9
+  { week: 9, awayTeam: "BUF", homeTeam: "MIN", gameTime: "Mon 8:15pm" },
+
+  // ── WEEK 10 ── BYE: CHI, DEN, PHI, TB ─────────────────────────────────────
+  // Thu Nov 12
+  { week: 10, awayTeam: "WAS", homeTeam: "NYG", gameTime: "Thu 8:15pm" },
+  // Sun Nov 15 (London 9:30am ET)
+  { week: 10, awayTeam: "NE",  homeTeam: "DET", gameTime: "Sun 9:30am" },
+  { week: 10, awayTeam: "BUF", homeTeam: "NYJ", gameTime: "Sun 1:00pm" },
+  { week: 10, awayTeam: "CAR", homeTeam: "NO",  gameTime: "Sun 1:00pm" },
+  { week: 10, awayTeam: "HOU", homeTeam: "CLE", gameTime: "Sun 1:00pm" },
+  { week: 10, awayTeam: "JAX", homeTeam: "TEN", gameTime: "Sun 1:00pm" },
+  { week: 10, awayTeam: "KC",  homeTeam: "ATL", gameTime: "Sun 1:00pm" },
+  { week: 10, awayTeam: "MIA", homeTeam: "IND", gameTime: "Sun 1:00pm" },
+  { week: 10, awayTeam: "MIN", homeTeam: "GB",  gameTime: "Sun 1:00pm" },
+  { week: 10, awayTeam: "SEA", homeTeam: "LV",  gameTime: "Sun 4:05pm" },
+  { week: 10, awayTeam: "LAR", homeTeam: "ARI", gameTime: "Sun 4:25pm" },
+  { week: 10, awayTeam: "SF",  homeTeam: "DAL", gameTime: "Sun 4:25pm" },
+  { week: 10, awayTeam: "PIT", homeTeam: "CIN", gameTime: "Sun 8:20pm" },
+  // Mon Nov 16
+  { week: 10, awayTeam: "BAL", homeTeam: "LAC", gameTime: "Mon 8:15pm" },
+
+  // ── WEEK 11 ── BYE: ATL, CLE, GB, LAR, NE, SEA ────────────────────────────
+  // Thu Nov 19
+  { week: 11, awayTeam: "IND", homeTeam: "HOU", gameTime: "Thu 8:15pm" },
+  // Sun Nov 22
+  { week: 11, awayTeam: "ARI", homeTeam: "KC",  gameTime: "Sun 1:00pm" },
+  { week: 11, awayTeam: "BAL", homeTeam: "CAR", gameTime: "Sun 1:00pm" },
+  { week: 11, awayTeam: "JAX", homeTeam: "NYG", gameTime: "Sun 1:00pm" },
+  { week: 11, awayTeam: "MIA", homeTeam: "BUF", gameTime: "Sun 1:00pm" },
+  { week: 11, awayTeam: "NO",  homeTeam: "CHI", gameTime: "Sun 1:00pm" },
+  { week: 11, awayTeam: "TB",  homeTeam: "DET", gameTime: "Sun 1:00pm" },
+  { week: 11, awayTeam: "TEN", homeTeam: "DAL", gameTime: "Sun 1:00pm" },
+  { week: 11, awayTeam: "NYJ", homeTeam: "LAC", gameTime: "Sun 4:05pm" },
+  { week: 11, awayTeam: "LV",  homeTeam: "DEN", gameTime: "Sun 4:25pm" },
+  { week: 11, awayTeam: "PIT", homeTeam: "PHI", gameTime: "Sun 4:25pm" },
+  { week: 11, awayTeam: "MIN", homeTeam: "SF",  gameTime: "Sun 8:20pm" },
+  // Mon Nov 23
+  { week: 11, awayTeam: "CIN", homeTeam: "WAS", gameTime: "Mon 8:15pm" },
+
+  // ── WEEK 12 ─────────────────────────────────────────────────────────────────
+  // Wed Nov 25
+  { week: 12, awayTeam: "GB",  homeTeam: "LAR", gameTime: "Wed 8:00pm" },
+  // Thu Nov 26 (Thanksgiving)
+  { week: 12, awayTeam: "CHI", homeTeam: "DET", gameTime: "Thu 1:00pm" },
+  { week: 12, awayTeam: "PHI", homeTeam: "DAL", gameTime: "Thu 4:30pm" },
+  { week: 12, awayTeam: "KC",  homeTeam: "BUF", gameTime: "Thu 8:20pm" },
+  // Fri Nov 27
+  { week: 12, awayTeam: "DEN", homeTeam: "PIT", gameTime: "Fri 3:00pm" },
+  // Sun Nov 29
+  { week: 12, awayTeam: "ATL", homeTeam: "MIN", gameTime: "Sun 1:00pm" },
+  { week: 12, awayTeam: "BAL", homeTeam: "HOU", gameTime: "Sun 1:00pm" },
+  { week: 12, awayTeam: "LV",  homeTeam: "CLE", gameTime: "Sun 1:00pm" },
+  { week: 12, awayTeam: "NO",  homeTeam: "CIN", gameTime: "Sun 1:00pm" },
+  { week: 12, awayTeam: "NYG", homeTeam: "IND", gameTime: "Sun 1:00pm" },
+  { week: 12, awayTeam: "NYJ", homeTeam: "MIA", gameTime: "Sun 1:00pm" },
+  { week: 12, awayTeam: "TEN", homeTeam: "JAX", gameTime: "Sun 4:05pm" },
+  { week: 12, awayTeam: "SEA", homeTeam: "SF",  gameTime: "Sun 4:25pm" },
+  { week: 12, awayTeam: "WAS", homeTeam: "ARI", gameTime: "Sun 4:25pm" },
+  { week: 12, awayTeam: "NE",  homeTeam: "LAC", gameTime: "Sun 8:20pm" },
+  // Mon Nov 30
+  { week: 12, awayTeam: "CAR", homeTeam: "TB",  gameTime: "Mon 8:15pm" },
+
+  // ── WEEK 13 ── BYE: BAL, IND, LV, NYJ ─────────────────────────────────────
+  // Thu Dec 3
+  { week: 13, awayTeam: "KC",  homeTeam: "LAR", gameTime: "Thu 8:15pm" },
+  // Sun Dec 6
+  { week: 13, awayTeam: "CIN", homeTeam: "CLE", gameTime: "Sun 1:00pm" },
+  { week: 13, awayTeam: "DET", homeTeam: "ATL", gameTime: "Sun 1:00pm" },
+  { week: 13, awayTeam: "GB",  homeTeam: "NO",  gameTime: "Sun 1:00pm" },
+  { week: 13, awayTeam: "JAX", homeTeam: "CHI", gameTime: "Sun 1:00pm" },
+  { week: 13, awayTeam: "LAC", homeTeam: "TB",  gameTime: "Sun 1:00pm" },
+  { week: 13, awayTeam: "SF",  homeTeam: "NYG", gameTime: "Sun 1:00pm" },
+  { week: 13, awayTeam: "WAS", homeTeam: "TEN", gameTime: "Sun 1:00pm" },
+  { week: 13, awayTeam: "MIA", homeTeam: "DEN", gameTime: "Sun 4:05pm" },
+  { week: 13, awayTeam: "PHI", homeTeam: "ARI", gameTime: "Sun 4:05pm" },
+  { week: 13, awayTeam: "BUF", homeTeam: "NE",  gameTime: "Sun 4:25pm" },
+  { week: 13, awayTeam: "CAR", homeTeam: "MIN", gameTime: "Sun 4:25pm" },
+  { week: 13, awayTeam: "HOU", homeTeam: "PIT", gameTime: "Sun 8:20pm" },
+  // Mon Dec 7
+  { week: 13, awayTeam: "DAL", homeTeam: "SEA", gameTime: "Mon 8:15pm" },
+
+  // ── WEEK 14 ── BYE: ARI, DAL ───────────────────────────────────────────────
+  // Thu Dec 10
+  { week: 14, awayTeam: "MIN", homeTeam: "NE",  gameTime: "Thu 8:15pm" },
+  // Sun Dec 13
+  { week: 14, awayTeam: "ATL", homeTeam: "CLE", gameTime: "Sun 1:00pm" },
+  { week: 14, awayTeam: "CHI", homeTeam: "MIA", gameTime: "Sun 1:00pm" },
+  { week: 14, awayTeam: "DEN", homeTeam: "NYJ", gameTime: "Sun 1:00pm" },
+  { week: 14, awayTeam: "HOU", homeTeam: "WAS", gameTime: "Sun 1:00pm" },
+  { week: 14, awayTeam: "IND", homeTeam: "PHI", gameTime: "Sun 1:00pm" },
+  { week: 14, awayTeam: "NO",  homeTeam: "CAR", gameTime: "Sun 1:00pm" },
+  { week: 14, awayTeam: "TB",  homeTeam: "BAL", gameTime: "Sun 1:00pm" },
+  { week: 14, awayTeam: "TEN", homeTeam: "DET", gameTime: "Sun 1:00pm" },
+  { week: 14, awayTeam: "LAC", homeTeam: "LV",  gameTime: "Sun 4:05pm" },
+  { week: 14, awayTeam: "KC",  homeTeam: "CIN", gameTime: "Sun 4:25pm" },
+  { week: 14, awayTeam: "LAR", homeTeam: "SF",  gameTime: "Sun 4:25pm" },
+  { week: 14, awayTeam: "NYG", homeTeam: "SEA", gameTime: "Sun 4:25pm" },
+  { week: 14, awayTeam: "BUF", homeTeam: "GB",  gameTime: "Sun 8:20pm" },
+  // Mon Dec 14
+  { week: 14, awayTeam: "PIT", homeTeam: "JAX", gameTime: "Mon 8:15pm" },
+
+  // ── WEEK 15 ─────────────────────────────────────────────────────────────────
+  // Thu Dec 17
+  { week: 15, awayTeam: "SF",  homeTeam: "LAC", gameTime: "Thu 8:15pm" },
+  // Sat Dec 19
+  { week: 15, awayTeam: "SEA", homeTeam: "PHI", gameTime: "Sat 5:00pm" },
+  { week: 15, awayTeam: "CHI", homeTeam: "BUF", gameTime: "Sat 8:20pm" },
+  // Sun Dec 20
+  { week: 15, awayTeam: "ATL", homeTeam: "WAS", gameTime: "Sun 1:00pm" },
+  { week: 15, awayTeam: "BAL", homeTeam: "PIT", gameTime: "Sun 1:00pm" },
+  { week: 15, awayTeam: "CIN", homeTeam: "CAR", gameTime: "Sun 1:00pm" },
+  { week: 15, awayTeam: "CLE", homeTeam: "NYG", gameTime: "Sun 1:00pm" },
+  { week: 15, awayTeam: "IND", homeTeam: "TEN", gameTime: "Sun 1:00pm" },
+  { week: 15, awayTeam: "JAX", homeTeam: "HOU", gameTime: "Sun 1:00pm" },
+  { week: 15, awayTeam: "MIA", homeTeam: "GB",  gameTime: "Sun 1:00pm" },
+  { week: 15, awayTeam: "NO",  homeTeam: "TB",  gameTime: "Sun 1:00pm" },
+  { week: 15, awayTeam: "NYJ", homeTeam: "ARI", gameTime: "Sun 4:05pm" },
+  { week: 15, awayTeam: "DAL", homeTeam: "LAR", gameTime: "Sun 4:25pm" },
+  { week: 15, awayTeam: "DEN", homeTeam: "LV",  gameTime: "Sun 4:25pm" },
+  { week: 15, awayTeam: "DET", homeTeam: "MIN", gameTime: "Sun 8:20pm" },
+  // Mon Dec 21
+  { week: 15, awayTeam: "NE",  homeTeam: "KC",  gameTime: "Mon 8:15pm" },
+
+  // ── WEEK 16 ─────────────────────────────────────────────────────────────────
+  // Thu Dec 24
+  { week: 16, awayTeam: "HOU", homeTeam: "PHI", gameTime: "Thu 8:15pm" },
+  // Fri Dec 25 (Christmas)
+  { week: 16, awayTeam: "GB",  homeTeam: "CHI", gameTime: "Fri 1:00pm" },
+  { week: 16, awayTeam: "BUF", homeTeam: "DEN", gameTime: "Fri 4:30pm" },
+  { week: 16, awayTeam: "LAR", homeTeam: "SEA", gameTime: "Fri 8:15pm" },
+  // Sun Dec 27
+  { week: 16, awayTeam: "ARI", homeTeam: "NO",  gameTime: "Sun 1:00pm" },
+  { week: 16, awayTeam: "CLE", homeTeam: "BAL", gameTime: "Sun 1:00pm" },
+  { week: 16, awayTeam: "LAC", homeTeam: "MIA", gameTime: "Sun 1:00pm" },
+  { week: 16, awayTeam: "NE",  homeTeam: "NYJ", gameTime: "Sun 1:00pm" },
+  { week: 16, awayTeam: "TEN", homeTeam: "LV",  gameTime: "Sun 4:05pm" },
+  { week: 16, awayTeam: "CAR", homeTeam: "PIT", gameTime: "Sun 4:25pm" },
+  { week: 16, awayTeam: "CIN", homeTeam: "IND", gameTime: "Sun 4:25pm" },
+  { week: 16, awayTeam: "SF",  homeTeam: "KC",  gameTime: "Sun 4:25pm" },
+  { week: 16, awayTeam: "TB",  homeTeam: "ATL", gameTime: "Sun 4:25pm" },
+  { week: 16, awayTeam: "WAS", homeTeam: "MIN", gameTime: "Sun 4:25pm" },
+  { week: 16, awayTeam: "JAX", homeTeam: "DAL", gameTime: "Sun 8:20pm" },
+  // Mon Dec 28
+  { week: 16, awayTeam: "NYG", homeTeam: "DET", gameTime: "Mon 8:15pm" },
+
+  // ── WEEK 17 ─────────────────────────────────────────────────────────────────
+  // Thu Dec 31 (New Year's Eve)
+  { week: 17, awayTeam: "BAL", homeTeam: "CIN", gameTime: "Thu 8:15pm" },
+  // Sun Jan 3
+  { week: 17, awayTeam: "BUF", homeTeam: "MIA", gameTime: "Sun 1:00pm" },
+  { week: 17, awayTeam: "IND", homeTeam: "CLE", gameTime: "Sun 1:00pm" },
+  { week: 17, awayTeam: "MIN", homeTeam: "NYJ", gameTime: "Sun 1:00pm" },
+  { week: 17, awayTeam: "NO",  homeTeam: "ATL", gameTime: "Sun 1:00pm" },
+  { week: 17, awayTeam: "NYG", homeTeam: "DAL", gameTime: "Sun 1:00pm" },
+  { week: 17, awayTeam: "PIT", homeTeam: "TEN", gameTime: "Sun 1:00pm" },
+  { week: 17, awayTeam: "SEA", homeTeam: "CAR", gameTime: "Sun 1:00pm" },
+  { week: 17, awayTeam: "LV",  homeTeam: "ARI", gameTime: "Sun 4:05pm" },
+  { week: 17, awayTeam: "DEN", homeTeam: "NE",  gameTime: "Sun 4:25pm" },
+  { week: 17, awayTeam: "DET", homeTeam: "CHI", gameTime: "Sun 4:25pm" },
+  { week: 17, awayTeam: "KC",  homeTeam: "LAC", gameTime: "Sun 4:25pm" },
+  { week: 17, awayTeam: "LAR", homeTeam: "TB",  gameTime: "Sun 4:25pm" },
+  { week: 17, awayTeam: "WAS", homeTeam: "JAX", gameTime: "Sun 4:25pm" },
+  { week: 17, awayTeam: "PHI", homeTeam: "SF",  gameTime: "Sun 8:20pm" },
+  // Mon Jan 4
+  { week: 17, awayTeam: "HOU", homeTeam: "GB",  gameTime: "Mon 8:15pm" },
+
+  // ── WEEK 18 ─────────────────────────────────────────────────────────────────
+  // Sat Jan 9
+  { week: 18, awayTeam: "CLE", homeTeam: "CIN", gameTime: "Sat 1:00pm" },
+  { week: 18, awayTeam: "LAC", homeTeam: "DEN", gameTime: "Sat 1:00pm" },
+  { week: 18, awayTeam: "NYJ", homeTeam: "BUF", gameTime: "Sat 1:00pm" },
+  // Sun Jan 10
+  { week: 18, awayTeam: "ATL", homeTeam: "CAR", gameTime: "Sun 1:00pm" },
+  { week: 18, awayTeam: "CHI", homeTeam: "MIN", gameTime: "Sun 1:00pm" },
+  { week: 18, awayTeam: "DAL", homeTeam: "WAS", gameTime: "Sun 1:00pm" },
+  { week: 18, awayTeam: "DET", homeTeam: "GB",  gameTime: "Sun 1:00pm" },
+  { week: 18, awayTeam: "JAX", homeTeam: "IND", gameTime: "Sun 1:00pm" },
+  { week: 18, awayTeam: "LV",  homeTeam: "KC",  gameTime: "Sun 1:00pm" },
+  { week: 18, awayTeam: "MIA", homeTeam: "NE",  gameTime: "Sun 1:00pm" },
+  { week: 18, awayTeam: "PHI", homeTeam: "NYG", gameTime: "Sun 1:00pm" },
+  { week: 18, awayTeam: "PIT", homeTeam: "BAL", gameTime: "Sun 1:00pm" },
+  { week: 18, awayTeam: "SF",  homeTeam: "ARI", gameTime: "Sun 1:00pm" },
+  { week: 18, awayTeam: "SEA", homeTeam: "LAR", gameTime: "Sun 1:00pm" },
+  { week: 18, awayTeam: "TB",  homeTeam: "NO",  gameTime: "Sun 1:00pm" },
+  { week: 18, awayTeam: "TEN", homeTeam: "HOU", gameTime: "Sun 1:00pm" },
+];
 
 const SPREADS = [
   "-3", "-3.5", "-4", "-4.5", "-5", "-5.5", "-6", "-6.5",
@@ -35,340 +403,21 @@ function flag() {
   return FLAGS[Math.floor(Math.random() * FLAGS.length)];
 }
 
-// 2026-27 NFL Season Schedule (Week 1-18, 16 games/week = 288 total)
-// Key: Baltimore Ravens (BAL) host Indianapolis Colts (IND) in Week 1
-const schedule: MatchSeed[] = [
-  // === WEEK 1 ===
-  { week: 1, homeTeam: "BAL", awayTeam: "IND" },
-  { week: 1, homeTeam: "KC", awayTeam: "PHI" },
-  { week: 1, homeTeam: "BUF", awayTeam: "MIA" },
-  { week: 1, homeTeam: "SF", awayTeam: "DAL" },
-  { week: 1, homeTeam: "DET", awayTeam: "LAR" },
-  { week: 1, homeTeam: "GB", awayTeam: "MIN" },
-  { week: 1, homeTeam: "CIN", awayTeam: "NE" },
-  { week: 1, homeTeam: "PIT", awayTeam: "WAS" },
-  { week: 1, homeTeam: "HOU", awayTeam: "TEN" },
-  { week: 1, homeTeam: "NYJ", awayTeam: "JAX" },
-  { week: 1, homeTeam: "CLE", awayTeam: "ATL" },
-  { week: 1, homeTeam: "NO", awayTeam: "CAR" },
-  { week: 1, homeTeam: "LV", awayTeam: "DEN" },
-  { week: 1, homeTeam: "LAC", awayTeam: "SEA" },
-  { week: 1, homeTeam: "ARI", awayTeam: "CHI" },
-  { week: 1, homeTeam: "NYG", awayTeam: "TB" },
-
-  // === WEEK 2 ===
-  { week: 2, homeTeam: "IND", awayTeam: "HOU" },
-  { week: 2, homeTeam: "PHI", awayTeam: "NYG" },
-  { week: 2, homeTeam: "MIA", awayTeam: "BUF" },
-  { week: 2, homeTeam: "DAL", awayTeam: "WAS" },
-  { week: 2, homeTeam: "LAR", awayTeam: "SF" },
-  { week: 2, homeTeam: "MIN", awayTeam: "DET" },
-  { week: 2, homeTeam: "NE", awayTeam: "NYJ" },
-  { week: 2, homeTeam: "WAS", awayTeam: "PIT" },
-  { week: 2, homeTeam: "TEN", awayTeam: "JAX" },
-  { week: 2, homeTeam: "ATL", awayTeam: "NO" },
-  { week: 2, homeTeam: "CAR", awayTeam: "TB" },
-  { week: 2, homeTeam: "DEN", awayTeam: "LV" },
-  { week: 2, homeTeam: "SEA", awayTeam: "ARI" },
-  { week: 2, homeTeam: "CHI", awayTeam: "GB" },
-  { week: 2, homeTeam: "CLE", awayTeam: "CIN" },
-  { week: 2, homeTeam: "KC", awayTeam: "LAC" },
-
-  // === WEEK 3 ===
-  { week: 3, homeTeam: "BAL", awayTeam: "CLE" },
-  { week: 3, homeTeam: "BUF", awayTeam: "NE" },
-  { week: 3, homeTeam: "KC", awayTeam: "DEN" },
-  { week: 3, homeTeam: "SF", awayTeam: "SEA" },
-  { week: 3, homeTeam: "PHI", awayTeam: "DAL" },
-  { week: 3, homeTeam: "GB", awayTeam: "DET" },
-  { week: 3, homeTeam: "HOU", awayTeam: "JAX" },
-  { week: 3, homeTeam: "LAR", awayTeam: "ARI" },
-  { week: 3, homeTeam: "MIN", awayTeam: "CHI" },
-  { week: 3, homeTeam: "PIT", awayTeam: "CIN" },
-  { week: 3, homeTeam: "MIA", awayTeam: "NYJ" },
-  { week: 3, homeTeam: "NO", awayTeam: "ATL" },
-  { week: 3, homeTeam: "TB", awayTeam: "CAR" },
-  { week: 3, homeTeam: "LAC", awayTeam: "LV" },
-  { week: 3, homeTeam: "WAS", awayTeam: "NYG" },
-  { week: 3, homeTeam: "TEN", awayTeam: "IND" },
-
-  // === WEEK 4 ===
-  { week: 4, homeTeam: "CIN", awayTeam: "BAL" },
-  { week: 4, homeTeam: "NYJ", awayTeam: "MIA" },
-  { week: 4, homeTeam: "DEN", awayTeam: "KC" },
-  { week: 4, homeTeam: "SEA", awayTeam: "SF" },
-  { week: 4, homeTeam: "DAL", awayTeam: "PHI" },
-  { week: 4, homeTeam: "DET", awayTeam: "GB" },
-  { week: 4, homeTeam: "JAX", awayTeam: "HOU" },
-  { week: 4, homeTeam: "ARI", awayTeam: "LAR" },
-  { week: 4, homeTeam: "CHI", awayTeam: "MIN" },
-  { week: 4, homeTeam: "ATL", awayTeam: "TB" },
-  { week: 4, homeTeam: "NO", awayTeam: "CAR" },
-  { week: 4, homeTeam: "LV", awayTeam: "LAC" },
-  { week: 4, homeTeam: "NYG", awayTeam: "WAS" },
-  { week: 4, homeTeam: "IND", awayTeam: "TEN" },
-  { week: 4, homeTeam: "NE", awayTeam: "BUF" },
-  { week: 4, homeTeam: "PIT", awayTeam: "CLE" },
-
-  // === WEEK 5 ===
-  { week: 5, homeTeam: "BAL", awayTeam: "PIT" },
-  { week: 5, homeTeam: "BUF", awayTeam: "NYJ" },
-  { week: 5, homeTeam: "KC", awayTeam: "LV" },
-  { week: 5, homeTeam: "SF", awayTeam: "LAR" },
-  { week: 5, homeTeam: "PHI", awayTeam: "WAS" },
-  { week: 5, homeTeam: "MIN", awayTeam: "GB" },
-  { week: 5, homeTeam: "HOU", awayTeam: "IND" },
-  { week: 5, homeTeam: "DAL", awayTeam: "NYG" },
-  { week: 5, homeTeam: "DET", awayTeam: "CHI" },
-  { week: 5, homeTeam: "NO", awayTeam: "TB" },
-  { week: 5, homeTeam: "ATL", awayTeam: "CAR" },
-  { week: 5, homeTeam: "LAC", awayTeam: "DEN" },
-  { week: 5, homeTeam: "JAX", awayTeam: "TEN" },
-  { week: 5, homeTeam: "SEA", awayTeam: "ARI" },
-  { week: 5, homeTeam: "CIN", awayTeam: "CLE" },
-  { week: 5, homeTeam: "MIA", awayTeam: "NE" },
-
-  // === WEEK 6 ===
-  { week: 6, homeTeam: "PIT", awayTeam: "BAL" },
-  { week: 6, homeTeam: "NYJ", awayTeam: "BUF" },
-  { week: 6, homeTeam: "LV", awayTeam: "KC" },
-  { week: 6, homeTeam: "LAR", awayTeam: "SF" },
-  { week: 6, homeTeam: "WAS", awayTeam: "PHI" },
-  { week: 6, homeTeam: "GB", awayTeam: "MIN" },
-  { week: 6, homeTeam: "IND", awayTeam: "JAX" },
-  { week: 6, homeTeam: "NYG", awayTeam: "DAL" },
-  { week: 6, homeTeam: "CHI", awayTeam: "DET" },
-  { week: 6, homeTeam: "TB", awayTeam: "NO" },
-  { week: 6, homeTeam: "CAR", awayTeam: "ATL" },
-  { week: 6, homeTeam: "DEN", awayTeam: "LAC" },
-  { week: 6, homeTeam: "TEN", awayTeam: "HOU" },
-  { week: 6, homeTeam: "ARI", awayTeam: "SEA" },
-  { week: 6, homeTeam: "CLE", awayTeam: "CIN" },
-  { week: 6, homeTeam: "NE", awayTeam: "MIA" },
-
-  // === WEEK 7 ===
-  { week: 7, homeTeam: "BAL", awayTeam: "HOU" },
-  { week: 7, homeTeam: "BUF", awayTeam: "KC" },
-  { week: 7, homeTeam: "MIA", awayTeam: "NE" },
-  { week: 7, homeTeam: "SF", awayTeam: "ARI" },
-  { week: 7, homeTeam: "DAL", awayTeam: "CHI" },
-  { week: 7, homeTeam: "GB", awayTeam: "LAR" },
-  { week: 7, homeTeam: "MIN", awayTeam: "DET" },
-  { week: 7, homeTeam: "PHI", awayTeam: "ATL" },
-  { week: 7, homeTeam: "TEN", awayTeam: "CLE" },
-  { week: 7, homeTeam: "WAS", awayTeam: "NYG" },
-  { week: 7, homeTeam: "TB", awayTeam: "CAR" },
-  { week: 7, homeTeam: "LAC", awayTeam: "DEN" },
-  { week: 7, homeTeam: "IND", awayTeam: "CIN" },
-  { week: 7, homeTeam: "NYJ", awayTeam: "JAX" },
-  { week: 7, homeTeam: "LV", awayTeam: "SEA" },
-  { week: 7, homeTeam: "NO", awayTeam: "PIT" },
-
-  // === WEEK 8 ===
-  { week: 8, homeTeam: "CLE", awayTeam: "BAL" },
-  { week: 8, homeTeam: "NE", awayTeam: "BUF" },
-  { week: 8, homeTeam: "DEN", awayTeam: "LV" },
-  { week: 8, homeTeam: "ARI", awayTeam: "SF" },
-  { week: 8, homeTeam: "CHI", awayTeam: "DAL" },
-  { week: 8, homeTeam: "LAR", awayTeam: "GB" },
-  { week: 8, homeTeam: "DET", awayTeam: "MIN" },
-  { week: 8, homeTeam: "ATL", awayTeam: "PHI" },
-  { week: 8, homeTeam: "CIN", awayTeam: "IND" },
-  { week: 8, homeTeam: "JAX", awayTeam: "NYJ" },
-  { week: 8, homeTeam: "SEA", awayTeam: "LV" },
-  { week: 8, homeTeam: "CAR", awayTeam: "NO" },
-  { week: 8, homeTeam: "PIT", awayTeam: "TEN" },
-  { week: 8, homeTeam: "NYG", awayTeam: "WAS" },
-  { week: 8, homeTeam: "KC", awayTeam: "MIA" },
-  { week: 8, homeTeam: "HOU", awayTeam: "LAC" },
-
-  // === WEEK 9 ===
-  { week: 9, homeTeam: "BAL", awayTeam: "NYJ" },
-  { week: 9, homeTeam: "BUF", awayTeam: "CIN" },
-  { week: 9, homeTeam: "KC", awayTeam: "SF" },
-  { week: 9, homeTeam: "LAR", awayTeam: "SEA" },
-  { week: 9, homeTeam: "PHI", awayTeam: "MIN" },
-  { week: 9, homeTeam: "GB", awayTeam: "CHI" },
-  { week: 9, homeTeam: "TEN", awayTeam: "IND" },
-  { week: 9, homeTeam: "DAL", awayTeam: "ATL" },
-  { week: 9, homeTeam: "CLE", awayTeam: "PIT" },
-  { week: 9, homeTeam: "NO", awayTeam: "WAS" },
-  { week: 9, homeTeam: "TB", awayTeam: "NYG" },
-  { week: 9, homeTeam: "DEN", awayTeam: "JAX" },
-  { week: 9, homeTeam: "LV", awayTeam: "HOU" },
-  { week: 9, homeTeam: "ARI", awayTeam: "LAC" },
-  { week: 9, homeTeam: "MIA", awayTeam: "NE" },
-  { week: 9, homeTeam: "DET", awayTeam: "CAR" },
-
-  // === WEEK 10 ===
-  { week: 10, homeTeam: "BAL", awayTeam: "TEN" },
-  { week: 10, homeTeam: "IND", awayTeam: "JAX" },
-  { week: 10, homeTeam: "KC", awayTeam: "GB" },
-  { week: 10, homeTeam: "SF", awayTeam: "LAR" },
-  { week: 10, homeTeam: "PHI", awayTeam: "DAL" },
-  { week: 10, homeTeam: "MIN", awayTeam: "GB" },
-  { week: 10, homeTeam: "MIA", awayTeam: "NYJ" },
-  { week: 10, homeTeam: "HOU", awayTeam: "NE" },
-  { week: 10, homeTeam: "PIT", awayTeam: "CLE" },
-  { week: 10, homeTeam: "ATL", awayTeam: "CAR" },
-  { week: 10, homeTeam: "TB", awayTeam: "NO" },
-  { week: 10, homeTeam: "DEN", awayTeam: "LAC" },
-  { week: 10, homeTeam: "SEA", awayTeam: "ARI" },
-  { week: 10, homeTeam: "WAS", awayTeam: "CHI" },
-  { week: 10, homeTeam: "NYG", awayTeam: "PHI" },
-  { week: 10, homeTeam: "CIN", awayTeam: "BUF" },
-
-  // === WEEK 11 ===
-  { week: 11, homeTeam: "BAL", awayTeam: "PHI" },
-  { week: 11, homeTeam: "BUF", awayTeam: "DEN" },
-  { week: 11, homeTeam: "KC", awayTeam: "HOU" },
-  { week: 11, homeTeam: "LAR", awayTeam: "ARI" },
-  { week: 11, homeTeam: "DAL", awayTeam: "WAS" },
-  { week: 11, homeTeam: "GB", awayTeam: "CHI" },
-  { week: 11, homeTeam: "JAX", awayTeam: "TEN" },
-  { week: 11, homeTeam: "PIT", awayTeam: "CIN" },
-  { week: 11, homeTeam: "MIN", awayTeam: "DET" },
-  { week: 11, homeTeam: "NO", awayTeam: "ATL" },
-  { week: 11, homeTeam: "CAR", awayTeam: "TB" },
-  { week: 11, homeTeam: "LV", awayTeam: "DEN" },
-  { week: 11, homeTeam: "SEA", awayTeam: "SF" },
-  { week: 11, homeTeam: "NYG", awayTeam: "NE" },
-  { week: 11, homeTeam: "MIA", awayTeam: "LAC" },
-  { week: 11, homeTeam: "IND", awayTeam: "CLE" },
-
-  // === WEEK 12 ===
-  { week: 12, homeTeam: "BAL", awayTeam: "LAR" },
-  { week: 12, homeTeam: "NE", awayTeam: "MIA" },
-  { week: 12, homeTeam: "DEN", awayTeam: "KC" },
-  { week: 12, homeTeam: "SF", awayTeam: "CHI" },
-  { week: 12, homeTeam: "WAS", awayTeam: "DAL" },
-  { week: 12, homeTeam: "DET", awayTeam: "GB" },
-  { week: 12, homeTeam: "TEN", awayTeam: "HOU" },
-  { week: 12, homeTeam: "CIN", awayTeam: "PIT" },
-  { week: 12, homeTeam: "ATL", awayTeam: "NO" },
-  { week: 12, homeTeam: "TB", awayTeam: "CAR" },
-  { week: 12, homeTeam: "LAC", awayTeam: "LV" },
-  { week: 12, homeTeam: "ARI", awayTeam: "SEA" },
-  { week: 12, homeTeam: "PHI", awayTeam: "NYG" },
-  { week: 12, homeTeam: "JAX", awayTeam: "IND" },
-  { week: 12, homeTeam: "NYJ", awayTeam: "CLE" },
-  { week: 12, homeTeam: "CHI", awayTeam: "MIN" },
-
-  // === WEEK 13 ===
-  { week: 13, homeTeam: "BAL", awayTeam: "DEN" },
-  { week: 13, homeTeam: "BUF", awayTeam: "MIA" },
-  { week: 13, homeTeam: "KC", awayTeam: "CIN" },
-  { week: 13, homeTeam: "SF", awayTeam: "GB" },
-  { week: 13, homeTeam: "DAL", awayTeam: "DET" },
-  { week: 13, homeTeam: "PHI", awayTeam: "WAS" },
-  { week: 13, homeTeam: "HOU", awayTeam: "JAX" },
-  { week: 13, homeTeam: "IND", awayTeam: "TEN" },
-  { week: 13, homeTeam: "PIT", awayTeam: "CLE" },
-  { week: 13, homeTeam: "ATL", awayTeam: "TB" },
-  { week: 13, homeTeam: "NO", awayTeam: "CAR" },
-  { week: 13, homeTeam: "LV", awayTeam: "LAC" },
-  { week: 13, homeTeam: "SEA", awayTeam: "SF" },
-  { week: 13, homeTeam: "ARI", awayTeam: "LAR" },
-  { week: 13, homeTeam: "MIN", awayTeam: "CHI" },
-  { week: 13, homeTeam: "NE", awayTeam: "NYJ" },
-
-  // === WEEK 14 ===
-  { week: 14, homeTeam: "BAL", awayTeam: "CIN" },
-  { week: 14, homeTeam: "NYJ", awayTeam: "NE" },
-  { week: 14, homeTeam: "DEN", awayTeam: "BAL" },
-  { week: 14, homeTeam: "LAR", awayTeam: "DAL" },
-  { week: 14, homeTeam: "PHI", awayTeam: "CHI" },
-  { week: 14, homeTeam: "DET", awayTeam: "MIN" },
-  { week: 14, homeTeam: "HOU", awayTeam: "CLE" },
-  { week: 14, homeTeam: "GB", awayTeam: "SF" },
-  { week: 14, homeTeam: "WAS", awayTeam: "ATL" },
-  { week: 14, homeTeam: "NYG", awayTeam: "NO" },
-  { week: 14, homeTeam: "TB", awayTeam: "CAR" },
-  { week: 14, homeTeam: "LAC", awayTeam: "KC" },
-  { week: 14, homeTeam: "IND", awayTeam: "LV" },
-  { week: 14, homeTeam: "JAX", awayTeam: "TEN" },
-  { week: 14, homeTeam: "MIA", awayTeam: "BUF" },
-  { week: 14, homeTeam: "SEA", awayTeam: "ARI" },
-
-  // === WEEK 15 ===
-  { week: 15, homeTeam: "BAL", awayTeam: "WAS" },
-  { week: 15, homeTeam: "BUF", awayTeam: "LAC" },
-  { week: 15, homeTeam: "KC", awayTeam: "PIT" },
-  { week: 15, homeTeam: "SF", awayTeam: "ARI" },
-  { week: 15, homeTeam: "DAL", awayTeam: "PHI" },
-  { week: 15, homeTeam: "GB", awayTeam: "MIN" },
-  { week: 15, homeTeam: "HOU", awayTeam: "BAL" },
-  { week: 15, homeTeam: "TEN", awayTeam: "JAX" },
-  { week: 15, homeTeam: "CIN", awayTeam: "CLE" },
-  { week: 15, homeTeam: "ATL", awayTeam: "NYG" },
-  { week: 15, homeTeam: "NO", awayTeam: "TB" },
-  { week: 15, homeTeam: "DEN", awayTeam: "LV" },
-  { week: 15, homeTeam: "SEA", awayTeam: "LAR" },
-  { week: 15, homeTeam: "CHI", awayTeam: "DET" },
-  { week: 15, homeTeam: "MIA", awayTeam: "NE" },
-  { week: 15, homeTeam: "IND", awayTeam: "NYJ" },
-
-  // === WEEK 16 ===
-  { week: 16, homeTeam: "BAL", awayTeam: "NE" },
-  { week: 16, homeTeam: "NYJ", awayTeam: "MIA" },
-  { week: 16, homeTeam: "KC", awayTeam: "JAX" },
-  { week: 16, homeTeam: "LAR", awayTeam: "NO" },
-  { week: 16, homeTeam: "PHI", awayTeam: "GB" },
-  { week: 16, homeTeam: "DET", awayTeam: "CHI" },
-  { week: 16, homeTeam: "HOU", awayTeam: "TEN" },
-  { week: 16, homeTeam: "CIN", awayTeam: "PIT" },
-  { week: 16, homeTeam: "DAL", awayTeam: "WAS" },
-  { week: 16, homeTeam: "ATL", awayTeam: "CAR" },
-  { week: 16, homeTeam: "TB", awayTeam: "NO" },
-  { week: 16, homeTeam: "LV", awayTeam: "KC" },
-  { week: 16, homeTeam: "ARI", awayTeam: "SF" },
-  { week: 16, homeTeam: "SEA", awayTeam: "LAC" },
-  { week: 16, homeTeam: "IND", awayTeam: "CLE" },
-  { week: 16, homeTeam: "MIN", awayTeam: "NYG" },
-
-  // === WEEK 17 ===
-  { week: 17, homeTeam: "BAL", awayTeam: "BUF" },
-  { week: 17, homeTeam: "KC", awayTeam: "DET" },
-  { week: 17, homeTeam: "SF", awayTeam: "LAR" },
-  { week: 17, homeTeam: "PHI", awayTeam: "DAL" },
-  { week: 17, homeTeam: "MIA", awayTeam: "NYJ" },
-  { week: 17, homeTeam: "MIN", awayTeam: "CHI" },
-  { week: 17, homeTeam: "PIT", awayTeam: "BAL" },
-  { week: 17, homeTeam: "IND", awayTeam: "HOU" },
-  { week: 17, homeTeam: "CLE", awayTeam: "CIN" },
-  { week: 17, homeTeam: "NO", awayTeam: "ATL" },
-  { week: 17, homeTeam: "CAR", awayTeam: "TB" },
-  { week: 17, homeTeam: "DEN", awayTeam: "LV" },
-  { week: 17, homeTeam: "ARI", awayTeam: "SEA" },
-  { week: 17, homeTeam: "WAS", awayTeam: "NYG" },
-  { week: 17, homeTeam: "JAX", awayTeam: "TEN" },
-  { week: 17, homeTeam: "NE", awayTeam: "BUF" },
-
-  // === WEEK 18 ===
-  { week: 18, homeTeam: "BAL", awayTeam: "PIT" },
-  { week: 18, homeTeam: "BUF", awayTeam: "MIA" },
-  { week: 18, homeTeam: "KC", awayTeam: "LV" },
-  { week: 18, homeTeam: "SF", awayTeam: "SEA" },
-  { week: 18, homeTeam: "PHI", awayTeam: "NYG" },
-  { week: 18, homeTeam: "DAL", awayTeam: "WAS" },
-  { week: 18, homeTeam: "HOU", awayTeam: "IND" },
-  { week: 18, homeTeam: "TEN", awayTeam: "JAX" },
-  { week: 18, homeTeam: "CIN", awayTeam: "CLE" },
-  { week: 18, homeTeam: "ATL", awayTeam: "CAR" },
-  { week: 18, homeTeam: "NO", awayTeam: "TB" },
-  { week: 18, homeTeam: "DEN", awayTeam: "LAC" },
-  { week: 18, homeTeam: "ARI", awayTeam: "LAR" },
-  { week: 18, homeTeam: "CHI", awayTeam: "DET" },
-  { week: 18, homeTeam: "MIN", awayTeam: "GB" },
-  { week: 18, homeTeam: "NE", awayTeam: "NYJ" },
-];
-
 async function main() {
   console.log("Clearing picks and matches...");
   await db.execute(sql`DELETE FROM picks`);
   await db.execute(sql`DELETE FROM matches`);
 
-  console.log(`Seeding ${schedule.length} matches...`);
+  const byWeek: Record<number, typeof schedule> = {};
+  for (const m of schedule) {
+    if (!byWeek[m.week]) byWeek[m.week] = [];
+    byWeek[m.week].push(m);
+  }
+  for (let w = 1; w <= 18; w++) {
+    console.log(`  Week ${w}: ${byWeek[w]?.length ?? 0} games`);
+  }
+  console.log(`Total: ${schedule.length} matches`);
+
   const rows = schedule.map((m) => ({
     week: m.week,
     homeTeam: m.homeTeam,
@@ -382,14 +431,15 @@ async function main() {
 
   await db.insert(schema.matchesTable).values(rows);
 
-  console.log("Done! Week 1 games:");
-  const week1 = schedule.filter((m) => m.week === 1);
-  week1.forEach((m) => console.log(`  ${m.awayTeam} @ ${m.homeTeam}`));
+  console.log("\nWeek 1 games seeded:");
+  schedule.filter((m) => m.week === 1).forEach((m) =>
+    console.log(`  ${m.gameTime ?? ""} | ${m.awayTeam} @ ${m.homeTeam}`)
+  );
 }
 
 main()
   .then(() => {
-    console.log("Seed complete.");
+    console.log("\nSeed complete.");
     process.exit(0);
   })
   .catch((err) => {
