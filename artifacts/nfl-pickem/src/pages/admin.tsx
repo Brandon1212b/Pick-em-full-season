@@ -4,7 +4,6 @@ import {
   useGetSeasonStatus,
   useSetMatchResult,
   useUpdateSeasonMode,
-  useSendWebhookNotification,
   useListUsers,
   getListMatchesQueryKey,
   getGetSeasonStatusQueryKey,
@@ -12,8 +11,6 @@ import {
 } from "@workspace/api-client-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
@@ -121,8 +118,6 @@ export default function Admin() {
   const { data: matches, isLoading: loadingMatches } = useListMatches();
   const { data: users, isLoading: loadingUsers } = useListUsers();
 
-  const [webhookUrl, setWebhookUrl] = useState("");
-  const [webhookMsg, setWebhookMsg] = useState("");
   const [userToDelete, setUserToDelete] = useState<{ id: number; name: string } | null>(null);
   const [weekToReset, setWeekToReset] = useState<number | null>(null);
   const [resettingWeek, setResettingWeek] = useState(false);
@@ -193,15 +188,6 @@ export default function Admin() {
     },
   });
 
-  const sendWebhook = useSendWebhookNotification({
-    mutation: {
-      onSuccess: () => {
-        toast.success("Notification sent!");
-        setWebhookMsg("");
-      },
-      onError: () => toast.error("Failed to send notification"),
-    },
-  });
 
   const handleModeToggle = (checked: boolean) => {
     updateSeasonMode.mutate({ data: { mode: checked ? "in-season" : "pre-season" } });
@@ -212,10 +198,6 @@ export default function Admin() {
     setMatchResult.mutate({ matchId, data: { winner } });
   };
 
-  const handleSendWebhook = () => {
-    if (!webhookUrl || !webhookMsg) return;
-    sendWebhook.mutate({ data: { webhookUrl, message: webhookMsg } });
-  };
 
   const handleResetWeek = async () => {
     if (weekToReset === null) return;
@@ -422,34 +404,6 @@ export default function Admin() {
         </CardContent>
       </Card>
 
-      {/* Blast Notification */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Blast Notification</CardTitle>
-          <CardDescription>Send a webhook message to Discord/Slack.</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label>Webhook URL</Label>
-            <Input
-              value={webhookUrl}
-              onChange={(e) => setWebhookUrl(e.target.value)}
-              placeholder="https://discord.com/api/webhooks/..."
-            />
-          </div>
-          <div className="space-y-2">
-            <Label>Message</Label>
-            <Textarea
-              value={webhookMsg}
-              onChange={(e) => setWebhookMsg(e.target.value)}
-              placeholder="Don't forget to set your picks!"
-            />
-          </div>
-          <Button onClick={handleSendWebhook} disabled={!webhookUrl || !webhookMsg || sendWebhook.isPending}>
-            Blast Notification
-          </Button>
-        </CardContent>
-      </Card>
 
       {/* Match Results */}
       <Card>

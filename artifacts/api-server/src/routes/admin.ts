@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { db, matchesTable, picksTable, seasonConfigTable, usersTable } from "@workspace/db";
 import { eq, sql } from "drizzle-orm";
-import { SetMatchResultParams, SetMatchResultBody, SendWebhookNotificationBody, UpdateSeasonModeBody } from "@workspace/api-zod";
+import { SetMatchResultParams, SetMatchResultBody, UpdateSeasonModeBody } from "@workspace/api-zod";
 
 const router = Router();
 
@@ -77,25 +77,6 @@ router.delete("/admin/weeks/:week/results", async (req, res) => {
   res.json({ success: true, week, matchesReset: weekMatches.length });
 });
 
-router.post("/admin/webhook", async (req, res) => {
-  const parsed = SendWebhookNotificationBody.safeParse(req.body);
-  if (!parsed.success) { res.status(400).json({ error: "Invalid request body" }); return; }
-  const { webhookUrl, message } = parsed.data;
-  try {
-    const response = await fetch(webhookUrl, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ content: message }),
-    });
-    if (!response.ok) {
-      res.json({ success: false, message: `Webhook returned ${response.status}` });
-      return;
-    }
-    res.json({ success: true, message: "Notification sent" });
-  } catch (err) {
-    res.json({ success: false, message: String(err) });
-  }
-});
 
 // Returns the most recent pick update time for each user
 router.get("/admin/users/last-pick-updates", async (_req, res) => {
