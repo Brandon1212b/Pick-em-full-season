@@ -1,4 +1,4 @@
-import { pgTable, serial, integer, text, boolean } from "drizzle-orm/pg-core";
+import { pgTable, serial, integer, text, boolean, timestamp } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 import { usersTable } from "./users";
@@ -11,8 +11,9 @@ export const picksTable = pgTable("picks", {
   selectedTeam: text("selected_team").notNull(),
   isLock: boolean("is_lock").notNull().default(false),
   pointsEarned: integer("points_earned").notNull().default(0),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
-export const insertPickSchema = createInsertSchema(picksTable).omit({ id: true, pointsEarned: true });
+export const insertPickSchema = createInsertSchema(picksTable).omit({ id: true, pointsEarned: true, updatedAt: true });
 export type InsertPick = z.infer<typeof insertPickSchema>;
 export type Pick = typeof picksTable.$inferSelect;

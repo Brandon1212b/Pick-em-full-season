@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { db, matchesTable, picksTable, seasonConfigTable } from "@workspace/db";
-import { eq } from "drizzle-orm";
+import { db, matchesTable, picksTable, seasonConfigTable, usersTable } from "@workspace/db";
+import { eq, sql } from "drizzle-orm";
 import { SetMatchResultParams, SetMatchResultBody, SendWebhookNotificationBody, UpdateSeasonModeBody } from "@workspace/api-zod";
 
 const router = Router();
@@ -95,6 +95,24 @@ router.post("/admin/webhook", async (req, res) => {
   } catch (err) {
     res.json({ success: false, message: String(err) });
   }
+});
+
+// Returns the most recent pick update time for each user
+router.get("/admin/users/last-pick-updates", async (_req, res) => {
+  const rows = await db
+    .select({
+      userId: picksTable.userId,
+      lastUpdated: sql<Date>`MAX(${picksTable.updatedAt})`.as("last_updated"),
+    })
+    .from(picksTable)
+    .groupBy(picksTable.userId);
+
+  res.json(
+    rows.map((r) => ({
+      userId: r.userId,
+      lastUpdated: r.lastUpdated.toISOString(),
+    }))
+  );
 });
 
 router.patch("/admin/season", async (req, res) => {

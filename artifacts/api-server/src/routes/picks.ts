@@ -18,6 +18,7 @@ function serializePick(p: typeof picksTable.$inferSelect, match?: typeof matches
     selectedTeam: p.selectedTeam,
     isLock: p.isLock,
     pointsEarned: p.pointsEarned,
+    updatedAt: p.updatedAt?.toISOString() ?? null,
     match: match
       ? {
           id: match.id,
@@ -93,7 +94,7 @@ router.post("/picks/save", async (req, res) => {
     if (existing.length > 0) {
       const [updated] = await db
         .update(picksTable)
-        .set({ selectedTeam: p.selectedTeam, isLock: false })
+        .set({ selectedTeam: p.selectedTeam, isLock: false, updatedAt: new Date() })
         .where(eq(picksTable.id, existing[0].id))
         .returning();
       results.push(updated);

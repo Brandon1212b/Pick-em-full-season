@@ -135,6 +135,9 @@ export default function Admin() {
   const [espnError, setEspnError] = useState<string | null>(null);
   const [espnLastFetched, setEspnLastFetched] = useState<Date | null>(null);
 
+  // Last pick update timestamps per user
+  const [lastPicks, setLastPicks] = useState<Record<number, string>>({});
+
   const loadEspnScores = useCallback(async () => {
     setEspnLoading(true);
     setEspnError(null);
@@ -156,6 +159,20 @@ export default function Admin() {
     const id = setInterval(loadEspnScores, 60_000);
     return () => clearInterval(id);
   }, [loadEspnScores]);
+
+  // Fetch last pick update timestamps per user
+  useEffect(() => {
+    fetch("/api/admin/users/last-pick-updates")
+      .then((r) => r.json())
+      .then((data: { userId: number; lastUpdated: string }[]) => {
+        const map: Record<number, string> = {};
+        for (const row of data) map[row.userId] = row.lastUpdated;
+        setLastPicks(map);
+      })
+      .catch(() => {
+        /* silently ignore — admin convenience feature */
+      });
+  }, []);
 
   const updateSeasonMode = useUpdateSeasonMode({
     mutation: {
@@ -367,7 +384,9 @@ export default function Admin() {
             </div>
           ) : users && users.length > 0 ? (
             <div className="space-y-2">
-              {users.map((u) => (
+              {users.map((u) => {
+                const lastTs = lastPicks[u.id];
+                return (
                 <div key={u.id} className="flex items-center justify-between p-3 border rounded-xl bg-card">
                   <div className="flex items-center gap-3">
                     <div
@@ -376,7 +395,14 @@ export default function Admin() {
                     >
                       {u.name.slice(0, 2).toUpperCase()}
                     </div>
-                    <span className="font-medium">{u.name}</span>
+                    <div className="flex flex-col">
+                      <span className="font-medium">{u.name}</span>
+                      {lastTs && (
+                        <span className="text-[11px] text-muted-foreground">
+                          Last updated: {new Date(lastTs).toLocaleString([], { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
+                        </span>
+                      )}
+                    </div>
                   </div>
                   <Button
                     variant="ghost"
@@ -387,7 +413,8 @@ export default function Admin() {
                     <Trash2 className="w-4 h-4" />
                   </Button>
                 </div>
-              ))}
+              );
+            })}
             </div>
           ) : (
             <p className="text-muted-foreground text-sm text-center py-4">No users yet.</p>
