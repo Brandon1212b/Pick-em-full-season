@@ -190,12 +190,12 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
       {user && (
         <header className="sticky top-0 z-40 w-full bg-background/80 backdrop-blur-xl border-b border-border">
           <div className="container mx-auto px-4 h-16 flex items-center justify-between max-w-5xl">
-            <div className="flex items-center gap-2">
+            <Link href={`/picks?week=${activeWeek}`} className="flex items-center gap-2 hover:opacity-80 transition-opacity">
               <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-bold text-lg">
                 🏈
               </div>
               <span className="font-semibold text-lg tracking-tight hidden sm:inline">Pick'em</span>
-            </div>
+            </Link>
 
             <nav className="hidden md:flex items-center gap-6">
               {navItems.map((item) => (
