@@ -454,7 +454,9 @@ export default function Picks() {
                       <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-1.5">{conf}</p>
                       <div className="space-y-1.5">
                         {divisions.map(({ div, teams }) => {
-                          const divTeams = teams.filter((t) => recordMap[t]);
+                          const divTeams = teams
+                            .filter((t) => recordMap[t])
+                            .sort((a, b) => (recordMap[b].wins - recordMap[a].wins) || (recordMap[a].losses - recordMap[b].losses));
                           if (divTeams.length === 0) return null;
                           return (
                             <div key={div} className="flex items-center gap-2">
@@ -569,7 +571,9 @@ export default function Picks() {
                     <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest mb-1">{conf}</p>
                     <div className="space-y-1">
                       {divisions.map(({ div, teams }) => {
-                        const divTeams = teams.filter((t) => recordMap[t]);
+                        const divTeams = teams
+                          .filter((t) => recordMap[t])
+                          .sort((a, b) => (recordMap[b].wins - recordMap[a].wins) || (recordMap[a].losses - recordMap[b].losses));
                         if (divTeams.length === 0) return null;
                         return (
                           <div key={div} className="flex items-center gap-1.5">
