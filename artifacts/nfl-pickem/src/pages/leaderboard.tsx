@@ -109,6 +109,26 @@ export default function Leaderboard() {
     }
   }
 
+  // Biggest Mover: compare rank at previous week vs current week
+  type Mover = { name: string; avatar: string | null; delta: number };
+  let biggestMover: Mover | null = null;
+  if (trends && trends.length >= 2 && trends[0].weeklyPoints.length >= 2) {
+    const numWeeks = trends[0].weeklyPoints.length;
+    const rank = (weekIdx: number) =>
+      [...trends]
+        .sort((a, b) => (b.weeklyPoints[weekIdx] ?? 0) - (a.weeklyPoints[weekIdx] ?? 0))
+        .map((u, i) => ({ userId: u.userId, rank: i + 1 }));
+    const prevRanks = rank(numWeeks - 2);
+    const currRanks = rank(numWeeks - 1);
+    const movers: Mover[] = trends.map((u) => {
+      const prev = prevRanks.find((r) => r.userId === u.userId)?.rank ?? 0;
+      const curr = currRanks.find((r) => r.userId === u.userId)?.rank ?? 0;
+      return { name: u.name, avatar: u.avatar, delta: prev - curr }; // positive = moved up
+    });
+    movers.sort((a, b) => Math.abs(b.delta) - Math.abs(a.delta));
+    if (movers[0] && movers[0].delta !== 0) biggestMover = movers[0];
+  }
+
   const getUserColor = (userId: number, idx: number): string => {
     const entry = leaderboard?.find((e) => e.userId === userId);
     return entry?.avatar ?? FALLBACK_COLORS[idx % FALLBACK_COLORS.length];
@@ -120,6 +140,23 @@ export default function Leaderboard() {
         <h1 className="text-3xl font-bold tracking-tight">Standings</h1>
         <p className="text-muted-foreground">League performance and analytics</p>
       </div>
+
+      {/* Biggest Mover callout */}
+      {biggestMover && (
+        <div className={`flex items-center gap-3 px-4 py-3 rounded-2xl border ${biggestMover.delta > 0 ? "bg-green-500/5 border-green-500/20" : "bg-red-500/5 border-red-500/20"}`}>
+          <span className="text-xl leading-none">{biggestMover.delta > 0 ? "📈" : "📉"}</span>
+          <div className="flex-1 min-w-0">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground leading-none mb-0.5">Biggest Mover</p>
+            <p className="text-sm font-semibold text-foreground truncate">
+              {biggestMover.name}
+              <span className={`ml-1.5 font-bold ${biggestMover.delta > 0 ? "text-green-500" : "text-red-500"}`}>
+                {biggestMover.delta > 0 ? "↑" : "↓"}{Math.abs(biggestMover.delta)}&nbsp;{Math.abs(biggestMover.delta) === 1 ? "spot" : "spots"}
+              </span>
+            </p>
+          </div>
+          <p className="text-[10px] text-muted-foreground whitespace-nowrap">vs last wk</p>
+        </div>
+      )}
 
       {/* League Standings */}
       <Card>
