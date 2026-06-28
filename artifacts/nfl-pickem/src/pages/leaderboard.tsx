@@ -204,8 +204,9 @@ export default function Leaderboard() {
                 <TableRow key={entry.userId}>
                   <TableCell className="font-bold text-lg">{entry.rank}</TableCell>
                   <TableCell>
-                    <div className="flex items-center gap-1 flex-wrap">
+                    <div className="flex flex-col gap-0.5">
                       <span className="font-semibold">{entry.name}</span>
+                      <div className="flex items-center gap-1 flex-wrap">
                       {entry.weekHighScoreCount > 0 && (
                         <BadgePop emoji="🔥" count={entry.weekHighScoreCount} />
                       )}
@@ -216,6 +217,7 @@ export default function Leaderboard() {
                         const emoji = badgeEmoji(b);
                         return emoji ? <BadgePop key={i} emoji={emoji} /> : null;
                       })}
+                      </div>
                     </div>
                   </TableCell>
                   <TableCell className="text-right font-bold text-lg">
