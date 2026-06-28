@@ -122,6 +122,25 @@ export default function Admin() {
   const [weekToReset, setWeekToReset] = useState<number | null>(null);
   const [resettingWeek, setResettingWeek] = useState(false);
   const [deletingUser, setDeletingUser] = useState(false);
+  const [seeding, setSeeding] = useState(false);
+
+  const handleSeedMatches = async () => {
+    setSeeding(true);
+    try {
+      const res = await fetch("/api/admin/seed-matches", { method: "POST" });
+      const data = await res.json();
+      if (data.seeded) {
+        toast.success(data.message);
+        queryClient.invalidateQueries();
+      } else {
+        toast.info(data.message);
+      }
+    } catch {
+      toast.error("Failed to seed match data");
+    } finally {
+      setSeeding(false);
+    }
+  };
 
   // ESPN live scores state (fetched directly from ESPN, auto-refreshed)
   const [espnGames, setEspnGames] = useState<EspnGame[]>([]);
@@ -334,7 +353,7 @@ export default function Admin() {
           <CardTitle>Season Settings</CardTitle>
           <CardDescription>Control the global state of the league.</CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-3">
           <div className="flex items-center justify-between p-4 border rounded-xl bg-secondary/30">
             <div>
               <Label className="text-base font-semibold">In-Season Mode</Label>
@@ -345,6 +364,15 @@ export default function Admin() {
               onCheckedChange={handleModeToggle}
               disabled={updateSeasonMode.isPending}
             />
+          </div>
+          <div className="flex items-center justify-between p-4 border rounded-xl bg-secondary/30">
+            <div>
+              <Label className="text-base font-semibold">Seed Match Data</Label>
+              <p className="text-sm text-muted-foreground">Insert all 272 games into the database (only runs if empty)</p>
+            </div>
+            <Button size="sm" variant="outline" onClick={handleSeedMatches} disabled={seeding}>
+              {seeding ? "Seeding…" : "Seed Matches"}
+            </Button>
           </div>
         </CardContent>
       </Card>
