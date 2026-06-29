@@ -202,7 +202,27 @@ export default function Leaderboard() {
             <TableBody>
               {leaderboard?.map((entry) => (
                 <TableRow key={entry.userId}>
-                  <TableCell className="font-bold text-lg">{entry.rank}</TableCell>
+                  <TableCell className="font-bold text-lg">
+                    <span className="flex items-center gap-1">
+                      {entry.rank}
+                      {(() => {
+                        if (!trends || trends[0]?.weeklyPoints.length < 2) return null;
+                        const numWeeks = trends[0].weeklyPoints.length;
+                        const rank = (weekIdx: number) =>
+                          [...trends]
+                            .sort((a, b) => (b.weeklyPoints[weekIdx] ?? 0) - (a.weeklyPoints[weekIdx] ?? 0))
+                            .map((u, i) => ({ userId: u.userId, rank: i + 1 }));
+                        const prevRanks = rank(numWeeks - 2);
+                        const currRanks = rank(numWeeks - 1);
+                        const prev = prevRanks.find((r) => r.userId === entry.userId)?.rank ?? 0;
+                        const curr = currRanks.find((r) => r.userId === entry.userId)?.rank ?? 0;
+                        const delta = prev - curr;
+                        if (delta > 0) return <span className="text-green-500 text-sm">↑{delta}</span>;
+                        if (delta < 0) return <span className="text-red-500 text-sm">↓{Math.abs(delta)}</span>;
+                        return <span className="text-muted-foreground text-sm">—</span>;
+                      })()}
+                    </span>
+                  </TableCell>
                   <TableCell>
                     <div className="flex flex-col gap-0.5">
                       <span className="font-semibold">{entry.name}</span>
