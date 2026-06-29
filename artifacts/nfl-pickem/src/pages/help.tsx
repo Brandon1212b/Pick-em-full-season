@@ -18,12 +18,12 @@ export default function Help() {
     <div className="space-y-5 pb-8 max-w-2xl mx-auto">
       <div>
         <h1 className="text-3xl font-bold tracking-tight">How to Play</h1>
-        <p className="text-muted-foreground mt-1">Everything you need to know about NFL Pick'em</p>
+        <p className="text-muted-foreground mt-1">Everything you need to know about NFL Pick'em 272</p>
       </div>
 
       <Section title="📋 The Basics">
         <p>
-          At the start of the season, you pick a winner for every game across all <strong className="text-foreground">18 weeks</strong> of the NFL season — 288 games total. Picks are locked in before the season kicks off, so choose wisely!
+          At the start of the season, you pick a winner for every game across all <strong className="text-foreground">18 weeks</strong> of the NFL season — 272 games total. Picks are locked in before the season kicks off, so choose wisely!
         </p>
         <p>
           During the season, results are entered by the commissioner and your score updates automatically. Track your standing on the Leaderboard.
@@ -46,7 +46,7 @@ export default function Help() {
 
       <Section title="⏰ Deadlines">
         <p>
-          All <strong className="text-foreground">288 picks must be submitted before the season starts</strong> in September. Once the commissioner switches the league to "in-season" mode, the Picks page is locked — no more changes.
+          All <strong className="text-foreground">272 picks must be submitted before the season starts</strong> in September. Once the commissioner switches the league to "in-season" mode, the Picks page is locked — no more changes.
         </p>
         <p>
           Once you've submitted all 288 picks, your picks are locked into a summary view. You can tap <strong className="text-foreground">Edit Picks</strong> to go back and make changes anytime before the season starts.
