@@ -388,6 +388,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Match"
+        "403":
+          description: Commissioner access required
 
   /admin/webhook:
     post:
@@ -407,6 +409,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/WebhookResult"
+        "403":
+          description: Commissioner access required
 
   /admin/season:
     patch:
@@ -426,6 +430,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/SeasonStatus"
+        "403":
+          description: Commissioner access required
 
 components:
   schemas:
@@ -439,7 +445,7 @@ components:
 
     User:
       type: object
-      required: [id, name, createdAt]
+      required: [id, name, role, createdAt]
       properties:
         id:
           type: integer
@@ -447,6 +453,9 @@ components:
           type: string
         avatar:
           type: ["string", "null"]
+        role:
+          type: string
+          enum: [member, admin]
         createdAt:
           type: string
 
