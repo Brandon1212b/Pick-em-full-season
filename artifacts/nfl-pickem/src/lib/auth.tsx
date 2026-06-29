@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState } from "react";
+import { setAuthTokenGetter } from "@workspace/api-client-react";
 import { useLocation } from "wouter";
 
 export type UserRole = "member" | "admin";
@@ -22,16 +23,26 @@ function normalizeUser(user: User): User {
   return { ...user, role: user.role ?? "member" };
 }
 
-export function getAuthHeaders(): HeadersInit {
+function getStoredUserId(): number | null {
   const saved = localStorage.getItem("auth_user");
-  if (!saved) return {};
+  if (!saved) return null;
 
   try {
     const user = JSON.parse(saved) as Pick<User, "id">;
-    return Number.isInteger(user.id) ? { "x-user-id": String(user.id) } : {};
+    return Number.isInteger(user.id) ? user.id : null;
   } catch {
-    return {};
+    return null;
   }
+}
+
+setAuthTokenGetter(() => {
+  const userId = getStoredUserId();
+  return userId ? String(userId) : null;
+});
+
+export function getAuthHeaders(): HeadersInit {
+  const userId = getStoredUserId();
+  return userId ? { "x-user-id": String(userId) } : {};
 }
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
