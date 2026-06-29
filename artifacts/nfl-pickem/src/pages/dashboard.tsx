@@ -329,8 +329,8 @@ export default function Dashboard() {
           <CardTitle>Smack Board</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="h-[300px] overflow-y-auto space-y-3 pr-1 flex flex-col-reverse">
-            {[...(smackMessages || [])].reverse().map((msg) => (
+          <div className="h-[300px] overflow-y-auto space-y-3 pr-1 flex flex-col">
+            {[...(smackMessages || [])].map((msg) => (
               <div key={msg.id} className="bg-secondary/40 p-3 rounded-xl border">
                 <div className="flex justify-between items-baseline mb-1">
                   <span className="font-bold text-sm">{msg.name}</span>
