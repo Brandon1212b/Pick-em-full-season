@@ -203,7 +203,6 @@ export default function Leaderboard() {
                     </select>
                   ) : "Pts"}
                 </TableHead>
-                <TableHead className="text-right">Total</TableHead>
                 <TableHead className="text-right">Record</TableHead>
               </TableRow>
             </TableHeader>
@@ -250,9 +249,6 @@ export default function Leaderboard() {
                   </TableCell>
                   <TableCell className="text-right font-bold text-lg">
                     {activeWeek > 0 ? getWeekPts(entry.userId, activeWeek) : entry.totalPoints}
-                  </TableCell>
-                  <TableCell className="text-right text-muted-foreground font-medium">
-                    {entry.totalPoints}
                   </TableCell>
                   <TableCell className="text-right text-muted-foreground text-sm">
                     {entry.correctPicks}-{entry.wrongPicks}
