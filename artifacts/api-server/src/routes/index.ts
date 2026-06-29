@@ -6,6 +6,7 @@ import picksRouter from "./picks";
 import leaderboardRouter from "./leaderboard";
 import smackboardRouter from "./smackboard";
 import adminRouter from "./admin";
+import { requireAdmin } from "../middleware/require-admin";
 
 const router: IRouter = Router();
 
@@ -15,6 +16,6 @@ router.use(matchesRouter);
 router.use(picksRouter);
 router.use(leaderboardRouter);
 router.use(smackboardRouter);
-router.use(adminRouter);
+router.use(requireAdmin, adminRouter);
 
 export default router;
