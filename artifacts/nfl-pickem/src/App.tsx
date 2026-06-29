@@ -2,7 +2,7 @@ import { Switch, Route, Router as WouterRouter } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { AuthProvider } from "@/lib/auth";
+import { AuthProvider, useAuth } from "@/lib/auth";
 import { AppLayout } from "@/components/layout";
 import NotFound from "@/pages/not-found";
 
@@ -22,6 +22,23 @@ const queryClient = new QueryClient({
   },
 });
 
+function AdminRoute() {
+  const { user } = useAuth();
+
+  if (user?.role !== "admin") {
+    return (
+      <div className="max-w-md mx-auto rounded-xl border bg-card p-6 text-center space-y-2">
+        <h1 className="text-xl font-bold">Commissioner access required</h1>
+        <p className="text-sm text-muted-foreground">
+          Only league commissioners can manage results, users, season mode, and schedule seeding.
+        </p>
+      </div>
+    );
+  }
+
+  return <Admin />;
+}
+
 function Router() {
   return (
     <AppLayout>
@@ -30,7 +47,7 @@ function Router() {
         <Route path="/picks" component={Picks} />
         <Route path="/dashboard" component={Dashboard} />
         <Route path="/leaderboard" component={Leaderboard} />
-        <Route path="/admin" component={Admin} />
+        <Route path="/admin" component={AdminRoute} />
         <Route path="/help" component={Help} />
         <Route component={NotFound} />
       </Switch>
