@@ -1,10 +1,13 @@
 import React, { createContext, useContext, useState } from "react";
 import { useLocation } from "wouter";
 
+export type UserRole = "member" | "admin";
+
 export interface User {
   id: number;
   name: string;
   avatar?: string | null;
+  role: UserRole;
 }
 
 interface AuthContextType {
@@ -15,17 +18,34 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+function normalizeUser(user: User): User {
+  return { ...user, role: user.role ?? "member" };
+}
+
+export function getAuthHeaders(): HeadersInit {
+  const saved = localStorage.getItem("auth_user");
+  if (!saved) return {};
+
+  try {
+    const user = JSON.parse(saved) as Pick<User, "id">;
+    return Number.isInteger(user.id) ? { "x-user-id": String(user.id) } : {};
+  } catch {
+    return {};
+  }
+}
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUserState] = useState<User | null>(() => {
     const saved = localStorage.getItem("auth_user");
-    return saved ? JSON.parse(saved) : null;
+    return saved ? normalizeUser(JSON.parse(saved)) : null;
   });
   const [, setLocation] = useLocation();
 
   const setUser = (user: User | null) => {
-    setUserState(user);
-    if (user) {
-      localStorage.setItem("auth_user", JSON.stringify(user));
+    const normalized = user ? normalizeUser(user) : null;
+    setUserState(normalized);
+    if (normalized) {
+      localStorage.setItem("auth_user", JSON.stringify(normalized));
     } else {
       localStorage.removeItem("auth_user");
       setLocation("/");
