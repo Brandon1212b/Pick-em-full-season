@@ -2,7 +2,7 @@
 
 An interactive web application where football fans predict the winner of every NFL game across an entire season (272 games total), track their standings on a leaderboard, and compete with friends.
 
-**Live Demo:** [Pickem272 on Replit](https://pickem272.brandon1212b.repl.co)
+**Live Demo:** coming soon
 
 ---
 
