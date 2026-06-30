@@ -79,13 +79,13 @@ async function fetchEspnScores(): Promise<{ week: number | null; games: EspnGame
     const period: number = comp?.status?.period ?? 0;
     const clock: string = comp?.status?.displayClock ?? "";
 
-    let statusLabel: string;
+    let : string;
     if (completed) {
-      statusLabel = "Final";
+       = "Final";
     } else if (period > 0) {
-      statusLabel = `Q${period} ${clock}`;
+       = `Q${period} ${clock}`;
     } else {
-      statusLabel = statusType.shortDetail ?? statusType.description ?? "—";
+      statusLabel = statusType.shortDetail?.replace(/\s*[ap]m\s*e[ds]t.*$/i, "") ?? statusType.description ?? "—";
     }
 
     const awayAbbr = normalizeEspn(away?.team?.abbreviation ?? "");
